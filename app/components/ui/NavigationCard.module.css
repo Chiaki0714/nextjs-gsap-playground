@@ -1,0 +1,33 @@
+.card {
+  display: block;
+  color: white;
+  text-decoration: none;
+}
+
+.inner {
+  padding: 32px;
+  border: 1px solid #222;
+  border-radius: 14px;
+  background: #151515;
+  transition:
+    transform 0.3s ease,
+    border 0.3s ease,
+    background 0.3s ease;
+  will-change: transform;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: #444;
+  background: #1b1b1b;
+}
+
+.title {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.description {
+  opacity: 0.6;
+  font-size: 14px;
+}

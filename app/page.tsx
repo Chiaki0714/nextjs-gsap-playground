@@ -1,65 +1,175 @@
-import Image from "next/image";
+'use client';
+
+import { useMemo, useRef, useState } from 'react';
+import clsx from 'clsx';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+import styles from './page.module.css';
+import NavigationCard from './components/ui/NavigationCard';
+
+gsap.registerPlugin(ScrollTrigger);
+
+type Tag =
+  | 'ScrollTrigger'
+  | 'Pin'
+  | 'Scrub'
+  | 'Switch'
+  | 'Reveal'
+  | 'Cards'
+  | 'Layout'
+  | 'Intro';
+
+type Experiment = {
+  title: string;
+  description: string;
+  href: string;
+  tags: Tag[];
+};
+
+const EXPERIMENTS: Experiment[] = [
+  {
+    title: 'Horizontal Scroll',
+    description: 'Pin + scrub + Lenis smooth scroll',
+    href: '/experiments/horizontal-scroll',
+    tags: ['ScrollTrigger', 'Pin', 'Scrub', 'Layout'],
+  },
+  {
+    title: 'Stacked Sections (Scrub)',
+    description: 'Scroll-progress controlled vertical transitions',
+    href: '/experiments/stacked-sections',
+    tags: ['ScrollTrigger', 'Pin', 'Scrub', 'Layout'],
+  },
+  {
+    title: 'Stacked Sections (Switch)',
+    description: 'Class-based vertical state switching',
+    href: '/experiments/stacked-sections-switch',
+    tags: ['ScrollTrigger', 'Pin', 'Switch', 'Reveal'],
+  },
+  {
+    title: 'Stacked Sections (List Dot)',
+    description: 'Line progress + active step dot (no markers)',
+    href: '/experiments/stacked-sections-switch-listdot',
+    tags: ['ScrollTrigger', 'Pin', 'Switch', 'Cards'],
+  },
+  {
+    title: 'Flow Vertical Steps',
+    description: 'Sticky sidebar + step-centered progress sync',
+    href: '/experiments/flow-vertical-steps',
+    tags: ['ScrollTrigger', 'Scrub', 'Layout', 'Cards'],
+  },
+];
+
+const ALL_TAGS: Tag[] = [
+  'ScrollTrigger',
+  'Pin',
+  'Scrub',
+  'Switch',
+  'Reveal',
+  'Cards',
+  'Layout',
+  'Intro',
+];
 
 export default function Home() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeTag, setActiveTag] = useState<Tag | 'All'>('All');
+
+  const visible =
+    activeTag === 'All'
+      ? EXPERIMENTS
+      : EXPERIMENTS.filter(e => e.tags.includes(activeTag));
+
+  // カード：フィルタが変わるたびに作り直し（増殖防止）
+  useGSAP(
+    () => {
+      const root = containerRef.current;
+      if (!root) return;
+
+      const q = gsap.utils.selector(root);
+      const cards = q('.cardFade') as HTMLElement[];
+      if (!cards.length) return;
+
+      // 既存の「cardFadeをtriggerにしてる」ScrollTriggerだけ消す
+      ScrollTrigger.getAll().forEach(st => {
+        const triggerEl = st.vars.trigger as Element | undefined;
+        if (
+          triggerEl &&
+          root.contains(triggerEl) &&
+          triggerEl.classList.contains('cardFade')
+        ) {
+          st.kill();
+        }
+      });
+
+      // 新しいカードを待機状態に
+      gsap.set(cards, { autoAlpha: 0, y: 16 });
+
+      ScrollTrigger.batch(cards, {
+        start: 'top 85%',
+        once: true,
+        onEnter: batch => {
+          gsap.to(batch, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.55,
+            ease: 'power2.out',
+            stagger: 0.06,
+            overwrite: 'auto',
+          });
+        },
+      });
+
+      ScrollTrigger.refresh();
+    },
+    { scope: containerRef, dependencies: [activeTag] },
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main ref={containerRef} className={styles.main}>
+      {/* title */}
+      <div className={styles.wrapper}>
+        <h1 className={`${styles.title} heroFade`}>GSAP Playground</h1>
+        <p className={`${styles.subtitle} heroFade`}>
+          Scroll-driven motion experiments built with Next.js + GSAP
+        </p>
+
+        {/* tag */}
+        <div className={styles.tags}>
+          <button
+            className={clsx(
+              styles.tag,
+              activeTag === 'All' && styles.tagActive,
+            )}
+            onClick={() => setActiveTag('All')}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            All
+          </button>
+
+          {ALL_TAGS.map(t => (
+            <button
+              key={t}
+              className={clsx(styles.tag, activeTag === t && styles.tagActive)}
+              onClick={() => setActiveTag(t)}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {/* card */}
+        <div className={styles.grid}>
+          {visible.map(e => (
+            <NavigationCard
+              key={e.href}
+              className='cardFade'
+              title={e.title}
+              description={e.description}
+              href={e.href}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          ))}
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

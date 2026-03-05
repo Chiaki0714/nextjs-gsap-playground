@@ -1,0 +1,168 @@
+.wrapper {
+  --progress: 0;
+  height: 100vh;
+  display: flex;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.left {
+  width: 50%;
+  height: 100vh;
+  background: #111;
+  color: white;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 36px clamp(24px, 4vw, 56px);
+  gap: 22px;
+}
+
+.leftHeader {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sectionLabel {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  opacity: 0.55;
+}
+
+/* indicator line only */
+.indicator {
+  position: relative;
+  height: 12px;
+  max-width: 560px;
+}
+
+.indicatorTrack,
+.indicatorFill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: 1px;
+  border-radius: 999px;
+}
+
+.indicatorTrack {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.indicatorFill {
+  background: rgba(255, 255, 255, 0.85);
+  transform-origin: left center;
+  transform: scaleX(var(--progress));
+  will-change: transform;
+}
+
+/* step list: active gets dot + stronger color (no horizontal slide) */
+.stepList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 14px; /* dot space */
+}
+
+.stepListItem {
+  position: relative;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  opacity: 0.34;
+  transition: opacity 0.18s ease;
+}
+
+/* dot */
+.stepListItem::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: 0.55em; /* text baseline-ish */
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0);
+  transform: translateY(-50%);
+  transition:
+    background 0.18s ease,
+    opacity 0.18s ease;
+  opacity: 0;
+}
+
+/* active */
+.wrapper[data-active-index='0'] .stepListItem[data-step-index='0'],
+.wrapper[data-active-index='1'] .stepListItem[data-step-index='1'],
+.wrapper[data-active-index='2'] .stepListItem[data-step-index='2'],
+.wrapper[data-active-index='3'] .stepListItem[data-step-index='3'] {
+  opacity: 0.92;
+}
+
+.wrapper[data-active-index='0'] .stepListItem[data-step-index='0']::before,
+.wrapper[data-active-index='1'] .stepListItem[data-step-index='1']::before,
+.wrapper[data-active-index='2'] .stepListItem[data-step-index='2']::before,
+.wrapper[data-active-index='3'] .stepListItem[data-step-index='3']::before {
+  background: rgba(255, 255, 255, 0.85);
+  opacity: 1;
+}
+
+/* text stage */
+.textStage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.textSection {
+  position: absolute;
+  top: 40%;
+  left: 0;
+  right: 0;
+  max-width: 520px;
+  pointer-events: none;
+
+  opacity: 0;
+  visibility: hidden; /* FOUC防止 */
+}
+
+.textSection a {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.textSection h2 {
+  font-size: 32px;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+
+.stepBody {
+  opacity: 0.7;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.right {
+  width: 50%;
+  height: 100vh;
+  background: #fff;
+  padding: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+}

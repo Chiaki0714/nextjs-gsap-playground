@@ -1,0 +1,72 @@
+.main {
+  min-height: 100vh;
+  background: #0f0f0f;
+  color: white;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-family: system-ui, sans-serif;
+}
+
+.wrapper {
+  width: 100%;
+  max-width: 1000px;
+  padding: 40px;
+  padding-top: 72px;
+}
+
+.title {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  opacity: 0.6;
+  margin-bottom: 48px;
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* タグ */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 30px;
+}
+
+.tag {
+  border: 1px solid #222;
+  background: #151515;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    border 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.tag:hover {
+  border-color: #333;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tagActive {
+  border-color: #444;
+  background: #1b1b1b;
+  color: rgba(255, 255, 255, 0.95);
+}
