@@ -1,0 +1,208 @@
+.wrapper {
+  --progress: 0;
+  height: 100vh;
+  display: flex;
+  background: #0f0f0f;
+  color: rgba(255, 255, 255, 0.92);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.left {
+  width: 28%;
+  min-width: 220px;
+  height: 100vh;
+  background: #111;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 56px clamp(18px, 3vw, 44px);
+}
+
+.leftHeader {
+  flex: 0 0 auto;
+}
+
+.sectionLabel {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  opacity: 0.6;
+}
+
+.indicatorWrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.indicator {
+  position: relative;
+  height: min(560px, calc(100vh - 220px));
+  width: 92px;
+  pointer-events: none;
+}
+
+.indicatorTrack,
+.indicatorFill {
+  position: absolute;
+  left: 58px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 999px;
+}
+
+.indicatorTrack {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.indicatorFill {
+  background: rgba(255, 255, 255, 0.85);
+  transform-origin: top center;
+  transform: scaleY(var(--progress));
+  will-change: transform;
+}
+
+.indicatorMarks {
+  position: absolute;
+  inset: 0;
+}
+
+.indicatorMark {
+  position: absolute;
+  left: 0;
+  transform: translateY(-50%);
+  width: 100%;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.indicatorNo {
+  text-align: right;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  opacity: 0.55;
+}
+
+.indicatorDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.26);
+  transform: translateX(calc(58px - (42px + 10px) - 4px));
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.indicatorMark[data-active='true'] .indicatorDot {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateX(calc(58px - (42px + 10px) - 4px)) scale(1.25);
+}
+
+.right {
+  width: 72%;
+  height: 100vh;
+  background: transparent;
+  overflow: hidden;
+  padding: 56px clamp(18px, 3vw, 44px);
+}
+
+.stage {
+  height: 100%;
+  overflow: hidden;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.stepsInner {
+  display: grid;
+  gap: 24px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  padding: 32px 40px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  width: 240px;
+}
+
+.cardNo {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: 0.01em;
+}
+
+.cardBody {
+  display: grid;
+  gap: 10px;
+}
+
+.stepBody,
+.stepListBullets {
+  margin: 0;
+  opacity: 0.68;
+  line-height: 1.75;
+  font-size: 14px;
+}
+
+.stepListBullets li {
+  margin-top: 6px;
+}
+
+.note {
+  margin: 8px 0 0;
+  padding-left: 10px;
+  border-left: 2px solid rgba(255, 255, 255, 0.35);
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+@media (max-width: 980px) {
+  .wrapper {
+    height: auto;
+    flex-direction: column;
+  }
+
+  .left,
+  .right {
+    width: 100%;
+    height: auto;
+  }
+
+  .indicatorWrap {
+    align-items: flex-start;
+  }
+
+  .stage {
+    overflow: visible;
+  }
+
+  .indicator {
+    height: 240px;
+  }
+}

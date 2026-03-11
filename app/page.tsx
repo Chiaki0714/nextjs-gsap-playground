@@ -1,111 +1,45 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import clsx from 'clsx';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import styles from './page.module.css';
 import NavigationCard from './components/ui/NavigationCard';
+import {
+  ALL_TAGS,
+  EXPERIMENTS,
+  type ActiveTag,
+} from './experiments/_registry/experiments';
 
 gsap.registerPlugin(ScrollTrigger);
 
-type Tag =
-  | 'ScrollTrigger'
-  | 'Pin'
-  | 'Scrub'
-  | 'Switch'
-  | 'Reveal'
-  | 'Cards'
-  | 'Layout'
-  | 'Intro';
-
-type Experiment = {
-  title: string;
-  description: string;
-  href: string;
-  tags: Tag[];
-};
-
-const EXPERIMENTS: Experiment[] = [
-  {
-    title: 'Horizontal Scroll',
-    description: 'Pin + scrub + Lenis smooth scroll',
-    href: '/experiments/horizontal-scroll',
-    tags: ['ScrollTrigger', 'Pin', 'Scrub', 'Layout'],
-  },
-  {
-    title: 'Stacked Sections (Scrub)',
-    description: 'Scroll-progress controlled vertical transitions',
-    href: '/experiments/stacked-sections',
-    tags: ['ScrollTrigger', 'Pin', 'Scrub', 'Layout'],
-  },
-  {
-    title: 'Stacked Sections (Switch)',
-    description: 'Class-based vertical state switching',
-    href: '/experiments/stacked-sections-switch',
-    tags: ['ScrollTrigger', 'Pin', 'Switch', 'Reveal'],
-  },
-  {
-    title: 'Stacked Sections (List Dot)',
-    description: 'Line progress + active step dot (no markers)',
-    href: '/experiments/stacked-sections-switch-listdot',
-    tags: ['ScrollTrigger', 'Pin', 'Switch', 'Cards'],
-  },
-  {
-    title: 'Flow Vertical Steps',
-    description: 'Sticky sidebar + step-centered progress sync',
-    href: '/experiments/flow-vertical-steps',
-    tags: ['ScrollTrigger', 'Scrub', 'Layout', 'Cards'],
-  },
-];
-
-const ALL_TAGS: Tag[] = [
-  'ScrollTrigger',
-  'Pin',
-  'Scrub',
-  'Switch',
-  'Reveal',
-  'Cards',
-  'Layout',
-  'Intro',
-];
-
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeTag, setActiveTag] = useState<Tag | 'All'>('All');
+  const [activeTag, setActiveTag] = useState<ActiveTag>('All');
 
-  const visible =
-    activeTag === 'All'
-      ? EXPERIMENTS
-      : EXPERIMENTS.filter(e => e.tags.includes(activeTag));
+  const visible = useMemo(() => {
+    if (activeTag === 'All') return EXPERIMENTS;
+    return EXPERIMENTS.filter(experiment =>
+      experiment.tags.includes(activeTag),
+    );
+  }, [activeTag]);
 
-  // カード：フィルタが変わるたびに作り直し（増殖防止）
   useGSAP(
     () => {
       const root = containerRef.current;
       if (!root) return;
 
-      const q = gsap.utils.selector(root);
-      const cards = q('.cardFade') as HTMLElement[];
+      const cards = gsap.utils.toArray<HTMLElement>('.cardFade', root);
       if (!cards.length) return;
 
-      // 既存の「cardFadeをtriggerにしてる」ScrollTriggerだけ消す
-      ScrollTrigger.getAll().forEach(st => {
-        const triggerEl = st.vars.trigger as Element | undefined;
-        if (
-          triggerEl &&
-          root.contains(triggerEl) &&
-          triggerEl.classList.contains('cardFade')
-        ) {
-          st.kill();
-        }
+      gsap.set(cards, {
+        autoAlpha: 0,
+        y: 16,
       });
 
-      // 新しいカードを待機状態に
-      gsap.set(cards, { autoAlpha: 0, y: 16 });
-
-      ScrollTrigger.batch(cards, {
+      const triggers = ScrollTrigger.batch(cards, {
         start: 'top 85%',
         once: true,
         onEnter: batch => {
@@ -121,22 +55,25 @@ export default function Home() {
       });
 
       ScrollTrigger.refresh();
+
+      return () => {
+        triggers.forEach(t => t.kill());
+      };
     },
     { scope: containerRef, dependencies: [activeTag] },
   );
 
   return (
     <main ref={containerRef} className={styles.main}>
-      {/* title */}
       <div className={styles.wrapper}>
-        <h1 className={`${styles.title} heroFade`}>GSAP Playground</h1>
-        <p className={`${styles.subtitle} heroFade`}>
+        <h1 className={`${styles.title}`}>GSAP Playground</h1>
+        <p className={`${styles.subtitle}`}>
           Scroll-driven motion experiments built with Next.js + GSAP
         </p>
 
-        {/* tag */}
         <div className={styles.tags}>
           <button
+            type='button'
             className={clsx(
               styles.tag,
               activeTag === 'All' && styles.tagActive,
@@ -146,26 +83,29 @@ export default function Home() {
             All
           </button>
 
-          {ALL_TAGS.map(t => (
+          {ALL_TAGS.map(tag => (
             <button
-              key={t}
-              className={clsx(styles.tag, activeTag === t && styles.tagActive)}
-              onClick={() => setActiveTag(t)}
+              key={tag}
+              type='button'
+              className={clsx(
+                styles.tag,
+                activeTag === tag && styles.tagActive,
+              )}
+              onClick={() => setActiveTag(tag)}
             >
-              {t}
+              {tag}
             </button>
           ))}
         </div>
 
-        {/* card */}
         <div className={styles.grid}>
-          {visible.map(e => (
+          {visible.map(experiment => (
             <NavigationCard
-              key={e.href}
+              key={experiment.href}
               className='cardFade'
-              title={e.title}
-              description={e.description}
-              href={e.href}
+              title={experiment.title}
+              description={experiment.description}
+              href={experiment.href}
             />
           ))}
         </div>

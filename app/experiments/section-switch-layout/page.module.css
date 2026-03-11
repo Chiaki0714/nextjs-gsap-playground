@@ -2,8 +2,6 @@
   --progress: 0;
   height: 100vh;
   display: flex;
-
-  /* pin突入時の“合成レイヤー”安定に効きやすい */
   will-change: transform;
   transform: translateZ(0);
 }
@@ -15,16 +13,13 @@
   background: #111;
   color: white;
   overflow: hidden;
-
   display: flex;
   flex-direction: column;
-
   padding: 36px clamp(24px, 4vw, 56px);
 }
 
-/* header */
 .leftHeader {
-  pointer-events: none; /* リストクリックさせないなら */
+  pointer-events: none;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -38,7 +33,6 @@
   opacity: 0.55;
 }
 
-/* indicator */
 .indicator {
   position: relative;
   height: 12px;
@@ -84,17 +78,11 @@
     background 0.2s ease;
 }
 
-/* active marker（左境界点強調） */
-.wrapper[data-active-marker='0'] .indicatorMark[data-index='0'],
-.wrapper[data-active-marker='1'] .indicatorMark[data-index='1'],
-.wrapper[data-active-marker='2'] .indicatorMark[data-index='2'],
-.wrapper[data-active-marker='3'] .indicatorMark[data-index='3'],
-.wrapper[data-active-marker='4'] .indicatorMark[data-index='4'] {
+.indicatorMark[data-active='true'] {
   background: rgba(255, 255, 255, 0.95);
   transform: translateX(-50%) scale(1.25);
 }
 
-/* step list */
 .stepList {
   display: flex;
   flex-direction: column;
@@ -106,28 +94,20 @@
   letter-spacing: 0.02em;
   line-height: 1.2;
   opacity: 0.32;
-  /*transform: translateX(10px);  非アクティブは少し右 */
   transition: opacity 0.3s ease;
-  /*transform 0.14s ease;  ←速くして遅れ感を減らす */
 }
 
-/* activeIndexで1つだけ強調（少し“左に寄る”） */
-.wrapper[data-active-index='0'] .stepListItem[data-step-index='0'],
-.wrapper[data-active-index='1'] .stepListItem[data-step-index='1'],
-.wrapper[data-active-index='2'] .stepListItem[data-step-index='2'],
-.wrapper[data-active-index='3'] .stepListItem[data-step-index='3'] {
+.stepListItem[data-active='true'] {
   opacity: 0.92;
   transform: translateX(0);
 }
 
-/* text ヘッダーの下から始める */
 .textStage {
-  position: relative; /* ← absoluteの基準にする */
-  flex: 1; /* ← 残り全部 */
+  position: relative;
+  flex: 1;
   min-height: 0;
 }
 
-/* textSection：ステージ内で中央揃え（yPercent方式推奨） */
 .textSection {
   position: absolute;
   top: 40%;
@@ -137,7 +117,6 @@
   pointer-events: none;
 }
 
-/* リンクだけクリック可能に戻す */
 .textSection a {
   pointer-events: auto;
   cursor: pointer;

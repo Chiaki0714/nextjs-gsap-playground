@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import clsx from 'clsx';
 import styles from './NavigationCard.module.css';
 
 type NavigationCardProps = {
@@ -19,7 +20,9 @@ export default function NavigationCard({
   return (
     <Link
       href={href}
-      className={[styles.card, className].filter(Boolean).join(' ')}
+      scroll={false}
+      className={clsx(styles.card, className)}
+      aria-label={`${title} page`}
     >
       <div className={styles.inner}>
         <h2 className={styles.title}>{title}</h2>

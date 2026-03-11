@@ -10,7 +10,7 @@ import { STEPS } from './steps';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const PIN_DWELL = 1.3; // 1ステップあたりの滞在量（お好みで）
+const PIN_DWELL = 1.3;
 
 export default function StackedSectionsSwitch() {
   const rootRef = useRef<HTMLElement>(null);
@@ -20,22 +20,35 @@ export default function StackedSectionsSwitch() {
       const pinned = rootRef.current;
       if (!pinned) return;
 
-      // Cross-device stability (esp. iOS address bar resize)
-      ScrollTrigger.config({ ignoreMobileResize: true });
-
       const q = gsap.utils.selector(pinned);
       const textEls = q(`.${styles.textSection}`) as HTMLElement[];
-      if (!textEls.length) return;
+      const stepEls = q(`.${styles.stepListItem}`) as HTMLElement[];
+      const markEls = q(`.${styles.indicatorMark}`) as HTMLElement[];
+
+      if (!textEls.length || !stepEls.length || !markEls.length) return;
 
       const stepsCount = textEls.length;
-
       let currentIndex = 0;
       let isAnimating = false;
 
-      // Initial state
+      const setActiveStep = (index: number) => {
+        stepEls.forEach((el, i) => {
+          el.dataset.active = i === index ? 'true' : 'false';
+        });
+      };
+
+      const setActiveMarker = (index: number) => {
+        markEls.forEach((el, i) => {
+          el.dataset.active = i === index ? 'true' : 'false';
+        });
+      };
+
       gsap.set(textEls, { autoAlpha: 0, y: 28, yPercent: -50 });
       gsap.set(textEls[0], { autoAlpha: 1, y: 0 });
+
       pinned.style.setProperty('--progress', '0');
+      setActiveStep(0);
+      setActiveMarker(0);
 
       const animateTo = (nextIndex: number, direction: 1 | -1) => {
         if (isAnimating) return;
@@ -43,12 +56,10 @@ export default function StackedSectionsSwitch() {
         if (nextIndex < 0 || nextIndex >= stepsCount) return;
 
         isAnimating = true;
-
-        pinned.dataset.activeIndex = String(nextIndex);
+        setActiveStep(nextIndex);
 
         const current = textEls[currentIndex];
         const next = textEls[nextIndex];
-
         const exitY = direction === 1 ? -28 : 28;
         const enterY = direction === 1 ? 28 : -28;
 
@@ -57,8 +68,7 @@ export default function StackedSectionsSwitch() {
             defaults: { duration: 0.55, ease: 'power2.out' },
             onComplete: () => {
               currentIndex = nextIndex;
-              // pinned.dataset.activeIndex = String(currentIndex);
-              pinned.dataset.activeMarker = String(currentIndex);
+              setActiveMarker(currentIndex);
               isAnimating = false;
             },
           })
@@ -80,37 +90,31 @@ export default function StackedSectionsSwitch() {
         pinType: 'transform',
         anticipatePin: 1,
         invalidateOnRefresh: true,
-
         onUpdate: self => {
-          const p = self.progress;
-          pinned.style.setProperty('--progress', String(p));
+          const progress = self.progress;
+          pinned.style.setProperty('--progress', String(progress));
 
-          // ✅ 終了点（stepsCount番目の点）を確実に光らせる
-          // progressが1.0にならない端末対策で 0.999 を使う
-          const isAtEnd = p >= 0.999;
-
-          if (isAtEnd) {
-            pinned.dataset.activeMarker = String(stepsCount); // 最後の点
-          } else {
-            const targetIndex = Math.min(
-              stepsCount - 1,
-              Math.floor(self.progress * stepsCount),
-            );
-
-            pinned.dataset.activeMarker = String(targetIndex);
-
-            if (targetIndex !== currentIndex) {
-              const direction: 1 | -1 = targetIndex > currentIndex ? 1 : -1;
-
-              // Prevent skipping multiple steps on fast scroll
-              const nextIndex =
-                direction === 1
-                  ? Math.min(currentIndex + 1, targetIndex)
-                  : Math.max(currentIndex - 1, targetIndex);
-
-              animateTo(nextIndex, direction);
-            }
+          if (progress >= 0.999) {
+            setActiveMarker(stepsCount);
+            return;
           }
+
+          const targetIndex = Math.min(
+            stepsCount - 1,
+            Math.floor(progress * stepsCount),
+          );
+
+          setActiveMarker(targetIndex);
+
+          if (targetIndex === currentIndex) return;
+
+          const direction: 1 | -1 = targetIndex > currentIndex ? 1 : -1;
+          const nextIndex =
+            direction === 1
+              ? Math.min(currentIndex + 1, targetIndex)
+              : Math.max(currentIndex - 1, targetIndex);
+
+          animateTo(nextIndex, direction);
         },
       });
 
@@ -120,27 +124,18 @@ export default function StackedSectionsSwitch() {
         st.kill();
       };
     },
-    { scope: rootRef, dependencies: [] },
+    { scope: rootRef },
   );
 
   const stepsCount = STEPS.length;
   const markersCount = stepsCount + 1;
 
   return (
-    <section
-      ref={rootRef}
-      className={styles.wrapper}
-      data-active-index='0'
-      data-active-marker='0'
-      data-steps={stepsCount}
-      data-markers={markersCount}
-    >
+    <section ref={rootRef} className={styles.wrapper}>
       <div className={styles.left}>
-        <div className={styles.leftHeader} aria-hidden='false'>
-          {/* title */}
+        <div className={styles.leftHeader}>
           <p className={styles.sectionLabel}>process</p>
 
-          {/* indicator */}
           <div className={styles.indicator} aria-hidden='true'>
             <div className={styles.indicatorTrack} />
             <div className={styles.indicatorFill} />
@@ -152,6 +147,7 @@ export default function StackedSectionsSwitch() {
                     key={i}
                     className={styles.indicatorMark}
                     data-index={i}
+                    data-active={i === 0 ? 'true' : 'false'}
                     style={{ left: `${leftPct}%` }}
                   />
                 );
@@ -159,22 +155,25 @@ export default function StackedSectionsSwitch() {
             </div>
           </div>
 
-          {/* step name list*/}
           <div className={styles.stepList} aria-label='Steps'>
-            {STEPS.map((s, i) => (
-              <div key={i} className={styles.stepListItem} data-step-index={i}>
-                {s.title}
+            {STEPS.map((step, i) => (
+              <div
+                key={i}
+                className={styles.stepListItem}
+                data-step-index={i}
+                data-active={i === 0 ? 'true' : 'false'}
+              >
+                {step.title}
               </div>
             ))}
           </div>
         </div>
 
-        {/* text section */}
         <div className={styles.textStage}>
-          {STEPS.map((s, i) => (
+          {STEPS.map((step, i) => (
             <div key={i} className={styles.textSection}>
-              <h2>{s.title}</h2>
-              {s.body}
+              <h2>{step.title}</h2>
+              {step.body}
             </div>
           ))}
         </div>

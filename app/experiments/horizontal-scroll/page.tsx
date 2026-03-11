@@ -1,57 +1,67 @@
 'use client';
 
-import { useLayoutEffect, useRef } from 'react';
-import Link from 'next/link';
+import { useRef } from 'react';
 import gsap from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 import styles from './page.module.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const ENTRY_DWELL = 0.35;
+const EXIT_DWELL = 0.35;
+const END_MULTIPLIER = 1.5;
+
 export default function HorizontalScrollPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      const panelsEl = document.querySelector(
+  useGSAP(
+    () => {
+      const root = containerRef.current;
+      if (!root) return;
+
+      const panelsEl = root.querySelector(
         `.${styles.panels}`,
-      ) as HTMLElement;
+      ) as HTMLElement | null;
+      if (!panelsEl) return;
 
-      const panels = gsap.utils.toArray<HTMLElement>(`.${styles.panel}`);
+      const panels = gsap.utils.toArray<HTMLElement>(`.${styles.panel}`, root);
+      if (!panels.length) return;
 
-      const totalMove = panelsEl.scrollWidth - window.innerWidth;
+      const getTotalMove = () =>
+        Math.max(0, panelsEl.scrollWidth - window.innerWidth);
 
-      const tl = gsap.timeline();
+      if (getTotalMove() === 0) return;
 
-      tl.to({}, { duration: 0.4 });
+      const tl = gsap.timeline({ defaults: { ease: 'none' } });
 
-      tl.to(panelsEl, {
-        x: -totalMove,
-        ease: 'none',
-        duration: panels.length,
-      });
+      tl.to({}, { duration: ENTRY_DWELL })
+        .to(panelsEl, {
+          x: () => -getTotalMove(),
+          duration: panels.length,
+        })
+        .to({}, { duration: EXIT_DWELL });
 
-      tl.to({}, { duration: 0.4 });
-
-      ScrollTrigger.create({
+      const st = ScrollTrigger.create({
         trigger: `.${styles.pinWrap}`,
         start: 'top top',
-        end: () => '+=' + totalMove * 1.5,
+        end: () => `+=${getTotalMove() * END_MULTIPLIER}`,
         pin: true,
         scrub: 1,
         animation: tl,
         invalidateOnRefresh: true,
       });
-    }, containerRef);
 
-    return () => {
-      ctx.revert();
-    };
-  }, []);
+      return () => {
+        st.kill();
+        tl.kill();
+      };
+    },
+    { scope: containerRef },
+  );
 
   return (
     <main ref={containerRef} className={styles.main}>
-      {/* PIN ZONE */}
       <section className={styles.pinWrap}>
         <div className={styles.panels}>
           <section className={`${styles.panel} ${styles.p1}`}>ONE</section>

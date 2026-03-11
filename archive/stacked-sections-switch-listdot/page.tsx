@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import Image from 'next/image';
 import styles from './page.module.css';
-import { STEPS } from '../stacked-sections-switch/steps';
+import { STEPS } from '../../app/experiments/section-switch-layout/steps';
 
 gsap.registerPlugin(ScrollTrigger);
 

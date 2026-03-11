@@ -1,3 +1,4 @@
+// app/experiments/layout.tsx
 import Link from 'next/link';
 import styles from './layout.module.css';
 
@@ -8,18 +9,16 @@ export default function ExperimentsLayout({
 }) {
   return (
     <main className={styles.main}>
-      <Link href='/' className={styles.back}>
+      <Link href='/' className={styles.back} aria-label='Back to home'>
         ← Back
       </Link>
 
-      {/* BEFORE */}
       <section className={styles.before}>
         <h2>Before Section</h2>
       </section>
 
       {children}
 
-      {/* AFTER */}
       <section className={styles.after}>
         <h2>After Section</h2>
       </section>
