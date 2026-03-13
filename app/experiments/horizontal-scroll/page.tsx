@@ -43,7 +43,7 @@ export default function HorizontalScrollPage() {
         .to({}, { duration: EXIT_DWELL });
 
       const st = ScrollTrigger.create({
-        trigger: `.${styles.pinWrap}`,
+        trigger: `.${styles.wrapper}`,
         start: 'top top',
         end: () => `+=${getTotalMove() * END_MULTIPLIER}`,
         pin: true,
@@ -61,8 +61,8 @@ export default function HorizontalScrollPage() {
   );
 
   return (
-    <main ref={containerRef} className={styles.main}>
-      <section className={styles.pinWrap}>
+    <section ref={containerRef}>
+      <section className={styles.wrapper}>
         <div className={styles.panels}>
           <section className={`${styles.panel} ${styles.p1}`}>ONE</section>
           <section className={`${styles.panel} ${styles.p2}`}>TWO</section>
@@ -70,6 +70,6 @@ export default function HorizontalScrollPage() {
           <section className={`${styles.panel} ${styles.p4}`}>FOUR</section>
         </div>
       </section>
-    </main>
+    </section>
   );
 }

@@ -39,6 +39,13 @@ export const EXPERIMENTS: Experiment[] = [
     href: '/experiments/vertical-card-flow',
     tags: ['ScrollTrigger', 'Pin', 'Scrub', 'Cards', 'Layout'],
   },
+  {
+    title: 'Parallax Layout',
+    description:
+      'Full-bleed, split, and inset media layouts with scrubbed image parallax',
+    href: '/experiments/parallax-layout',
+    tags: ['ScrollTrigger', 'Scrub', 'Layout'],
+  },
 ];
 
 export const ALL_TAGS: Tag[] = [
