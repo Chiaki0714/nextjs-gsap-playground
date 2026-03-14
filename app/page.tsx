@@ -1,10 +1,11 @@
 'use client';
 
-import { useRef, useState, useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+
 import styles from './page.module.css';
 import NavigationCard from './components/ui/NavigationCard';
 import {
@@ -16,7 +17,7 @@ import {
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const [activeTag, setActiveTag] = useState<ActiveTag>('All');
 
   const visible = useMemo(() => {
@@ -28,18 +29,15 @@ export default function Home() {
 
   useGSAP(
     () => {
-      const root = containerRef.current;
+      const root = rootRef.current;
       if (!root) return;
 
       const cards = gsap.utils.toArray<HTMLElement>('.cardFade', root);
       if (!cards.length) return;
 
-      gsap.set(cards, {
-        autoAlpha: 0,
-        y: 16,
-      });
+      gsap.set(cards, { autoAlpha: 0, y: 16 });
 
-      const triggers = ScrollTrigger.batch(cards, {
+      const batchResult = ScrollTrigger.batch(cards, {
         start: 'top 85%',
         once: true,
         onEnter: batch => {
@@ -54,62 +52,70 @@ export default function Home() {
         },
       });
 
-      ScrollTrigger.refresh();
+      const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
 
       return () => {
-        triggers.forEach(t => t.kill());
+        cancelAnimationFrame(raf);
+        const triggers = Array.isArray(batchResult)
+          ? batchResult
+          : [batchResult];
+        triggers.forEach(t => t?.kill?.());
       };
     },
-    { scope: containerRef, dependencies: [activeTag] },
+    { scope: rootRef, dependencies: [activeTag] },
   );
 
   return (
-    <main ref={containerRef} className={styles.main}>
-      <div className={styles.wrapper}>
-        <h1 className={`${styles.title}`}>GSAP Playground</h1>
-        <p className={`${styles.subtitle}`}>
-          Scroll-driven motion experiments built with Next.js + GSAP
-        </p>
+    <main className={styles.main} ref={rootRef}>
+      <section className={styles.wrapper}>
+        <div className={clsx('containerWide', styles.container)}>
+          <header className={styles.header}>
+            <h1 className={styles.title}>GSAP Playground</h1>
+            <p className={styles.subtitle}>
+              Scroll-driven motion experiments built with Next.js + GSAP
+            </p>
+          </header>
 
-        <div className={styles.tags}>
-          <button
-            type='button'
-            className={clsx(
-              styles.tag,
-              activeTag === 'All' && styles.tagActive,
-            )}
-            onClick={() => setActiveTag('All')}
-          >
-            All
-          </button>
-
-          {ALL_TAGS.map(tag => (
+          <nav className={styles.tags} aria-label='Filter experiments by tag'>
             <button
-              key={tag}
               type='button'
               className={clsx(
                 styles.tag,
-                activeTag === tag && styles.tagActive,
+                activeTag === 'All' && styles.tagActive,
               )}
-              onClick={() => setActiveTag(tag)}
+              onClick={() => setActiveTag('All')}
             >
-              {tag}
+              All
             </button>
-          ))}
-        </div>
 
-        <div className={styles.grid}>
-          {visible.map(experiment => (
-            <NavigationCard
-              key={experiment.href}
-              className='cardFade'
-              title={experiment.title}
-              description={experiment.description}
-              href={experiment.href}
-            />
-          ))}
+            {ALL_TAGS.map(tag => (
+              <button
+                key={tag}
+                type='button'
+                className={clsx(
+                  styles.tag,
+                  activeTag === tag && styles.tagActive,
+                )}
+                onClick={() => setActiveTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </nav>
+
+          <section className={styles.grid} aria-label='Experiment list'>
+            {visible.map(experiment => (
+              <NavigationCard
+                key={experiment.href}
+                className='cardFade'
+                title={experiment.title}
+                description={experiment.description}
+                href={experiment.href}
+              />
+            ))}
+          </section>
         </div>
-      </div>
+      </section>
     </main>
   );
 }

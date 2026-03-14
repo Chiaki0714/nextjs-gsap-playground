@@ -20,7 +20,6 @@ export default function NavigationCard({
   return (
     <Link
       href={href}
-      scroll={false}
       className={clsx(styles.card, className)}
       aria-label={`${title} page`}
     >

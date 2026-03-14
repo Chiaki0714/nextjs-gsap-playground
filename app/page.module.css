@@ -1,7 +1,10 @@
+/* app/page.module.css */
+
 .main {
   min-height: 100vh;
-  background: #0f0f0f;
-  color: white;
+  min-height: 100svh;
+  background: var(--background);
+  color: var(--foreground);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -9,63 +12,90 @@
 
 .wrapper {
   width: 100%;
-  max-width: 1000px;
-  padding: 40px;
-  padding-top: 72px;
+  padding-top: clamp(48px, 6vw, 72px);
+  padding-bottom: clamp(32px, 5vw, 64px);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.6vw, 28px);
+}
+
+.header {
+  display: grid;
+  gap: 10px;
 }
 
 .title {
-  font-size: 48px;
-  margin-bottom: 16px;
+  font-size: clamp(32px, 4.4vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  opacity: 0.6;
-  margin-bottom: 48px;
+  color: var(--text-dim);
+  font-size: clamp(14px, 1.4vw, 16px);
+  line-height: 1.7;
 }
 
-.grid {
-  display: grid;
-  gap: 24px;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 860px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-/* タグ */
 .tags {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 18px 0 30px;
 }
 
 .tag {
-  border: 1px solid #222;
-  background: #151515;
-  color: rgba(255, 255, 255, 0.75);
-  padding: 8px 12px;
+  border: 1px solid var(--border-1);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  padding: 10px 12px;
   border-radius: 999px;
   font-size: 12px;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition:
-    border 0.2s ease,
-    background 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
     color 0.2s ease;
+  touch-action: manipulation;
 }
 
 .tag:hover {
-  border-color: #333;
+  border-color: var(--border-2);
   color: rgba(255, 255, 255, 0.9);
 }
 
 .tagActive {
-  border-color: #444;
-  background: #1b1b1b;
+  border-color: var(--border-3);
+  background: var(--surface-2);
   color: rgba(255, 255, 255, 0.95);
 }
+
+.grid {
+  display: grid;
+  gap: clamp(14px, 2.2vw, 24px);
+  grid-template-columns: 1fr;
+}
+
+/* tablet〜 */
+@media (min-width: 860px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* desktop〜（広め：3カラム） */
+@media (min-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* さらに超ワイドで4にしたいなら（任意）
+@media (min-width: 1600px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+*/

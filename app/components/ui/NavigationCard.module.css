@@ -1,14 +1,14 @@
 .card {
   display: block;
-  color: white;
+  color: var(--foreground, #ededed);
   text-decoration: none;
 }
 
 .inner {
   padding: 32px;
-  border: 1px solid #222;
+  border: 1px solid var(--border-1);
   border-radius: 14px;
-  background: #151515;
+  background: var(--surface-1);
   transition:
     transform 0.3s ease,
     border-color 0.3s ease,
@@ -19,8 +19,8 @@
 .card:hover .inner,
 .card:focus-visible .inner {
   transform: translateY(-6px);
-  border-color: #444;
-  background-color: #1b1b1b;
+  border-color: var(--border-3);
+  background-color: var(--surface-2);
 }
 
 .card:focus-visible {
@@ -28,11 +28,13 @@
 }
 
 .title {
-  font-size: 20px;
   margin-bottom: 8px;
+  font-size: 20px;
+  color: var(--foreground);
 }
 
 .description {
-  opacity: 0.6;
   font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-dim);
 }
