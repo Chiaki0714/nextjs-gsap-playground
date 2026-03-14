@@ -1,3 +1,4 @@
+// app/page.tsx
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
@@ -34,14 +35,6 @@ export default function Home() {
       const prefersReducedMotion = window.matchMedia(
         '(prefers-reduced-motion: reduce)',
       ).matches;
-      const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-
-      if (prefersReducedMotion) {
-        gsap.killTweensOf(cards);
-        gsap.set(cards, { autoAlpha: 1, y: 0 });
-        isFirstRenderRef.current = false;
-        return;
-      }
 
       gsap.killTweensOf(cards);
 
@@ -50,38 +43,40 @@ export default function Home() {
         return;
       }
 
-      if (isFirstRenderRef.current) {
-        gsap.set(cards, {
-          autoAlpha: 0,
-          y: isCoarsePointer ? 8 : 16,
-        });
-
-        gsap.to(cards, {
-          autoAlpha: 1,
-          y: 0,
-          duration: isCoarsePointer ? 0.45 : 0.6,
-          stagger: isCoarsePointer ? 0.05 : 0.07,
-          ease: 'power2.out',
-          overwrite: 'auto',
-        });
-
+      if (prefersReducedMotion) {
+        gsap.set(cards, { autoAlpha: 1, y: 0 });
         isFirstRenderRef.current = false;
         return;
       }
 
-      gsap.set(cards, {
-        autoAlpha: 0,
-        y: isCoarsePointer ? 0 : 8,
-      });
+      const animationSettings = isFirstRenderRef.current
+        ? {
+            from: { autoAlpha: 0, y: 24 },
+            to: {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.85,
+              stagger: 0.08,
+              ease: 'power2.out',
+              overwrite: 'auto' as const,
+            },
+          }
+        : {
+            from: { autoAlpha: 0, y: 18 },
+            to: {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.65,
+              stagger: 0.06,
+              ease: 'power2.out',
+              overwrite: 'auto' as const,
+            },
+          };
 
-      gsap.to(cards, {
-        autoAlpha: 1,
-        y: 0,
-        duration: isCoarsePointer ? 0.35 : 0.45,
-        stagger: isCoarsePointer ? 0.04 : 0.05,
-        ease: 'power2.out',
-        overwrite: 'auto',
-      });
+      gsap.set(cards, animationSettings.from);
+      gsap.to(cards, animationSettings.to);
+
+      isFirstRenderRef.current = false;
     },
     { scope: rootRef, dependencies: [activeTag] },
   );
@@ -91,7 +86,7 @@ export default function Home() {
       <section className={styles.wrapper}>
         <div className={clsx('containerWide', styles.container)}>
           <header className={styles.header}>
-            <h1 className={styles.title}>GSAP Playground v2</h1>
+            <h1 className={styles.title}>GSAP Playground</h1>
             <p className={styles.subtitle}>
               Scroll-driven motion experiments built with Next.js + GSAP
             </p>
