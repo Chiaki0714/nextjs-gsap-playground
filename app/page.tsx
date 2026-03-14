@@ -1,4 +1,3 @@
-// app/page.tsx
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
@@ -16,7 +15,6 @@ import {
 
 export default function Home() {
   const rootRef = useRef<HTMLDivElement>(null);
-  const isFirstRenderRef = useRef(true);
   const [activeTag, setActiveTag] = useState<ActiveTag>('All');
 
   const visible = useMemo(() => {
@@ -38,45 +36,23 @@ export default function Home() {
 
       gsap.killTweensOf(cards);
 
-      if (!cards.length) {
-        isFirstRenderRef.current = false;
-        return;
-      }
+      if (!cards.length) return;
 
       if (prefersReducedMotion) {
         gsap.set(cards, { autoAlpha: 1, y: 0 });
-        isFirstRenderRef.current = false;
         return;
       }
 
-      const animationSettings = isFirstRenderRef.current
-        ? {
-            from: { autoAlpha: 0, y: 24 },
-            to: {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.85,
-              stagger: 0.08,
-              ease: 'power2.out',
-              overwrite: 'auto' as const,
-            },
-          }
-        : {
-            from: { autoAlpha: 0, y: 18 },
-            to: {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.65,
-              stagger: 0.06,
-              ease: 'power2.out',
-              overwrite: 'auto' as const,
-            },
-          };
+      gsap.set(cards, { autoAlpha: 0, y: 18 });
 
-      gsap.set(cards, animationSettings.from);
-      gsap.to(cards, animationSettings.to);
-
-      isFirstRenderRef.current = false;
+      gsap.to(cards, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.65,
+        stagger: 0.06,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
     },
     { scope: rootRef, dependencies: [activeTag] },
   );
