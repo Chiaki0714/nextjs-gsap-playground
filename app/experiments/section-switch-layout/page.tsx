@@ -1,21 +1,20 @@
 'use client';
 
 import { useRef } from 'react';
+import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import Image from 'next/image';
+
 import styles from './page.module.css';
 import { STEPS } from './steps';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const PIN_DWELL = 1.3;
-const DESKTOP_QUERY = '(min-width: 960px)';
-const MOBILE_QUERY = '(max-width: 959px)';
 
 export default function StackedSectionsSwitch() {
-  const rootRef = useRef<HTMLElement>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
 
   useGSAP(
     () => {
@@ -34,7 +33,14 @@ export default function StackedSectionsSwitch() {
 
       const setActiveStep = (index: number) => {
         stepEls.forEach((el, i) => {
-          el.dataset.active = i === index ? 'true' : 'false';
+          const isActive = i === index;
+          el.dataset.active = isActive ? 'true' : 'false';
+
+          if (isActive) {
+            el.setAttribute('aria-current', 'step');
+          } else {
+            el.removeAttribute('aria-current');
+          }
         });
       };
 
@@ -44,110 +50,127 @@ export default function StackedSectionsSwitch() {
         });
       };
 
-      mm.add(DESKTOP_QUERY, () => {
-        let currentIndex = 0;
-        let isAnimating = false;
-
-        const clearDesktopState = () => {
-          gsap.killTweensOf(textEls);
-          root.style.setProperty('--progress', '0');
-          setActiveStep(0);
-          setActiveMarker(0);
-        };
-
-        const animateTo = (nextIndex: number, direction: 1 | -1) => {
-          if (isAnimating) return;
-          if (nextIndex === currentIndex) return;
-          if (nextIndex < 0 || nextIndex >= stepsCount) return;
-
-          isAnimating = true;
-          setActiveStep(nextIndex);
-
-          const current = textEls[currentIndex];
-          const next = textEls[nextIndex];
-          const exitY = direction === 1 ? -28 : 28;
-          const enterY = direction === 1 ? 28 : -28;
-
-          gsap
-            .timeline({
-              defaults: { duration: 0.55, ease: 'power2.out' },
-              onComplete: () => {
-                currentIndex = nextIndex;
-                setActiveMarker(currentIndex);
-                isAnimating = false;
-              },
-            })
-            .to(current, { autoAlpha: 0, y: exitY, force3D: true }, 0)
-            .fromTo(
-              next,
-              { autoAlpha: 0, y: enterY },
-              { autoAlpha: 1, y: 0, force3D: true },
-              0,
-            );
-        };
-
-        gsap.set(textEls, { autoAlpha: 0, y: 28, yPercent: -50 });
-        gsap.set(textEls[0], { autoAlpha: 1, y: 0 });
-
-        clearDesktopState();
-
-        const st = ScrollTrigger.create({
-          trigger: root,
-          start: 'top top',
-          end: () => `+=${stepsCount * window.innerHeight * PIN_DWELL}`,
-          pin: true,
-          pinSpacing: true,
-          pinType: 'transform',
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: self => {
-            const progress = self.progress;
-            root.style.setProperty('--progress', String(progress));
-
-            if (progress >= 0.999) {
-              setActiveMarker(stepsCount);
-              return;
-            }
-
-            const targetIndex = Math.min(
-              stepsCount - 1,
-              Math.floor(progress * stepsCount),
-            );
-
-            setActiveMarker(targetIndex);
-
-            if (targetIndex === currentIndex) return;
-
-            const direction: 1 | -1 = targetIndex > currentIndex ? 1 : -1;
-            const nextIndex =
-              direction === 1
-                ? Math.min(currentIndex + 1, targetIndex)
-                : Math.max(currentIndex - 1, targetIndex);
-
-            animateTo(nextIndex, direction);
-          },
-        });
-
-        const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
-
-        return () => {
-          cancelAnimationFrame(raf);
-          st.kill();
-          clearDesktopState();
-        };
-      });
-
-      mm.add(MOBILE_QUERY, () => {
+      const setStaticState = () => {
         gsap.killTweensOf(textEls);
         gsap.set(textEls, { clearProps: 'all', autoAlpha: 1, y: 0 });
         root.style.setProperty('--progress', '0');
         setActiveStep(0);
         setActiveMarker(0);
+      };
 
-        return () => {
-          gsap.killTweensOf(textEls);
-        };
-      });
+      mm.add(
+        {
+          isDesktop: '(min-width: 960px)',
+          reduceMotion: '(prefers-reduced-motion: reduce)',
+        },
+        context => {
+          const { isDesktop, reduceMotion } = context.conditions as {
+            isDesktop: boolean;
+            reduceMotion: boolean;
+          };
+
+          if (!isDesktop || reduceMotion) {
+            setStaticState();
+
+            return () => {
+              gsap.killTweensOf(textEls);
+            };
+          }
+
+          let currentIndex = 0;
+          let isAnimating = false;
+
+          const clearDesktopState = () => {
+            gsap.killTweensOf(textEls);
+            root.style.setProperty('--progress', '0');
+            setActiveStep(0);
+            setActiveMarker(0);
+          };
+
+          const animateTo = (nextIndex: number, direction: 1 | -1) => {
+            if (isAnimating) return;
+            if (nextIndex === currentIndex) return;
+            if (nextIndex < 0 || nextIndex >= stepsCount) return;
+
+            isAnimating = true;
+            setActiveStep(nextIndex);
+
+            const current = textEls[currentIndex];
+            const next = textEls[nextIndex];
+            const exitY = direction === 1 ? -28 : 28;
+            const enterY = direction === 1 ? 28 : -28;
+
+            gsap
+              .timeline({
+                defaults: { duration: 0.55, ease: 'power2.out' },
+                onComplete: () => {
+                  currentIndex = nextIndex;
+                  setActiveMarker(currentIndex);
+                  isAnimating = false;
+                },
+              })
+              .to(current, { autoAlpha: 0, y: exitY, force3D: true }, 0)
+              .fromTo(
+                next,
+                { autoAlpha: 0, y: enterY },
+                { autoAlpha: 1, y: 0, force3D: true },
+                0,
+              );
+          };
+
+          gsap.set(textEls, { autoAlpha: 0, y: 28, yPercent: -50 });
+          gsap.set(textEls[0], { autoAlpha: 1, y: 0 });
+
+          clearDesktopState();
+
+          const st = ScrollTrigger.create({
+            trigger: root,
+            start: 'top top',
+            end: () => `+=${stepsCount * window.innerHeight * PIN_DWELL}`,
+            pin: true,
+            pinSpacing: true,
+            pinType: 'transform',
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: self => {
+              const progress = self.progress;
+              root.style.setProperty('--progress', String(progress));
+
+              if (progress >= 0.999) {
+                setActiveMarker(stepsCount);
+                return;
+              }
+
+              const targetIndex = Math.min(
+                stepsCount - 1,
+                Math.floor(progress * stepsCount),
+              );
+
+              setActiveMarker(targetIndex);
+
+              if (targetIndex === currentIndex) return;
+
+              const direction: 1 | -1 = targetIndex > currentIndex ? 1 : -1;
+              const nextIndex =
+                direction === 1
+                  ? Math.min(currentIndex + 1, targetIndex)
+                  : Math.max(currentIndex - 1, targetIndex);
+
+              animateTo(nextIndex, direction);
+            },
+          });
+
+          const rafId = requestAnimationFrame(() => {
+            ScrollTrigger.refresh();
+          });
+
+          return () => {
+            cancelAnimationFrame(rafId);
+            st.kill();
+            clearDesktopState();
+          };
+        },
+      );
 
       return () => {
         mm.revert();
@@ -171,6 +194,7 @@ export default function StackedSectionsSwitch() {
             <div className={styles.indicatorMarks}>
               {Array.from({ length: markersCount }, (_, i) => {
                 const leftPct = (i / stepsCount) * 100;
+
                 return (
                   <span
                     key={i}
@@ -184,23 +208,24 @@ export default function StackedSectionsSwitch() {
             </div>
           </div>
 
-          <div className={styles.stepList} aria-label='Steps'>
+          <ol className={styles.stepList} aria-label='Steps'>
             {STEPS.map((step, i) => (
-              <div
-                key={i}
+              <li
+                key={step.id}
                 className={styles.stepListItem}
                 data-step-index={i}
                 data-active={i === 0 ? 'true' : 'false'}
+                aria-current={i === 0 ? 'step' : undefined}
               >
                 {step.title}
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
 
         <div className={styles.textStage}>
-          {STEPS.map((step, i) => (
-            <div key={i} className={styles.textSection}>
+          {STEPS.map(step => (
+            <div key={step.id} className={styles.textSection}>
               <h2>{step.title}</h2>
               {step.body}
             </div>

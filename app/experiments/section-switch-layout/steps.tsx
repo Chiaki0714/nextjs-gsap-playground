@@ -2,37 +2,37 @@ import type { ReactNode } from 'react';
 import styles from './page.module.css';
 
 export type Step = {
+  id: string;
   title: string;
   body: ReactNode;
 };
 
 export const STEPS: Step[] = [
   {
+    id: 'introduction',
     title: 'Introduction',
     body: (
-      <>
-        <p className={styles.stepBody}>
-          静と動の設計。
-          <br />
-          ここは<strong className={styles.em}>強調</strong>もできる。
-        </p>
-      </>
+      <p className={styles.stepBody}>
+        静と動の設計。
+        <br />
+        ここは<strong className={styles.em}>強調</strong>もできる。
+      </p>
     ),
   },
   {
+    id: 'philosophy',
     title: 'Philosophy',
     body: (
-      <>
-        <p className={styles.stepBody}>
-          スクロールに意味を持たせる。
-          <br />
-          行を増やしたり、<span className={styles.muted}>色を薄く</span>
-          もできる。
-        </p>
-      </>
+      <p className={styles.stepBody}>
+        スクロールに意味を持たせる。
+        <br />
+        行を増やしたり、<span className={styles.muted}>色を薄く</span>
+        もできる。
+      </p>
     ),
   },
   {
+    id: 'craft',
     title: 'Craft',
     body: (
       <>
@@ -46,6 +46,7 @@ export const STEPS: Step[] = [
     ),
   },
   {
+    id: 'vision',
     title: 'Vision',
     body: (
       <>

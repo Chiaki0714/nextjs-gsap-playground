@@ -5,8 +5,6 @@
   display: flex;
   background: var(--background);
   color: var(--foreground);
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 .left {
@@ -19,7 +17,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: var(--layout-lg) clamp(24px, 4vw, 56px);
+  padding-block: var(--layout-lg);
+  padding-inline: clamp(24px, 4vw, 56px);
 }
 
 .leftHeader {
@@ -79,7 +78,7 @@
   background: rgba(255, 255, 255, 0.26);
   transition:
     transform 0.2s ease,
-    background 0.2s ease;
+    background-color 0.2s ease;
 }
 
 .indicatorMark[data-active='true'] {
@@ -88,6 +87,9 @@
 }
 
 .stepList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
@@ -98,12 +100,14 @@
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-sm);
   opacity: 0.32;
-  transition: opacity 0.3s ease;
+  transform: translateX(0);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .stepListItem[data-active='true'] {
   opacity: 0.92;
-  transform: translateX(0);
 }
 
 .textStage {
@@ -114,10 +118,10 @@
 
 .textSection {
   position: absolute;
-  top: 40%;
+  top: 50%;
   left: 0;
   right: 0;
-  max-width: 520px;
+  max-width: min(520px, 100%);
   pointer-events: none;
   display: grid;
   gap: var(--space-lg);
@@ -154,16 +158,20 @@
 }
 
 .stepListBullets {
+  margin: 0;
   padding-left: 20px;
 }
 
 .link {
   color: var(--foreground);
   text-decoration: underline;
+  text-decoration-thickness: 1px;
   text-underline-offset: 4px;
+  transition: opacity 0.2s ease;
 }
 
-.link:hover {
+.link:focus-visible {
+  outline: none;
   opacity: 1;
 }
 
@@ -189,6 +197,18 @@
   background: var(--surface-2);
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .link:hover {
+    opacity: 0.72;
+  }
+}
+
+@media (hover: none) {
+  .link:active {
+    opacity: 0.72;
+  }
+}
+
 @media (max-width: 959px) {
   .wrapper {
     min-height: auto;
@@ -203,11 +223,11 @@
 
   .right {
     order: -1;
-    padding: var(--layout-lg) 16px 0;
+    padding: var(--layout-lg) var(--gutter) 0;
   }
 
   .left {
-    padding: var(--layout-md) 16px var(--layout-xl);
+    padding: var(--layout-md) var(--gutter) var(--layout-xl);
     overflow: visible;
     background: var(--background);
   }
@@ -262,6 +282,10 @@
 }
 
 @media (max-width: 640px) {
+  .right {
+    padding-top: var(--layout-md);
+  }
+
   .imageWrapper {
     min-height: clamp(280px, 42svh, 360px);
   }
