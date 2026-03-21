@@ -1,16 +1,18 @@
-// app/experiments/layout.tsx
 import Link from 'next/link';
 import styles from './layout.module.css';
 
+type ExperimentsLayoutProps = {
+  children: React.ReactNode;
+};
+
 export default function ExperimentsLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: ExperimentsLayoutProps) {
   return (
     <main className={styles.main}>
-      <Link href='/' className={styles.back} aria-label='Back to home'>
-        ← Back
+      <Link href='/' className={styles.back}>
+        <span aria-hidden='true'>←</span>
+        <span>Back</span>
       </Link>
 
       <section className={styles.before}>
