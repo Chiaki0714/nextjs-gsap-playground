@@ -1,7 +1,6 @@
 .wrapper {
-  background: #0f0f0f;
-  color: rgba(255, 255, 255, 0.92);
-  font-family: system-ui, sans-serif;
+  background: var(--background);
+  color: var(--text-strong);
 }
 
 .media {
@@ -62,6 +61,7 @@
 .banner,
 .footer {
   min-height: 100vh;
+  min-height: 100svh;
 }
 
 .hero {
@@ -73,47 +73,49 @@
 .heroCopy {
   position: relative;
   z-index: 1;
-  width: 100%;
-  max-width: 1000px;
+  width: min(var(--container), calc(100% - (var(--gutter) * 2)));
   min-height: 100vh;
-  margin: 0 auto;
-  padding: 40px;
+  min-height: 100svh;
+  margin-inline: auto;
+  padding: var(--layout-md);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+  gap: var(--space-lg);
 }
 
 .kicker {
-  margin: 0 0 12px;
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  margin: 0;
+  font-size: var(--font-label);
+  line-height: 1;
+  letter-spacing: var(--tracking-wide);
   text-transform: lowercase;
-  opacity: 0.58;
+  color: var(--text-dim);
 }
 
 .heroTitle {
   margin: 0;
   font-size: clamp(44px, 7vw, 96px);
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   line-height: 0.94;
   letter-spacing: -0.04em;
 }
 
 .body {
   margin: 0;
-  max-width: 420px;
-  font-size: 13px;
-  line-height: 1.8;
-  opacity: 0.72;
+  max-width: 42ch;
+  font-size: var(--font-body-md);
+  line-height: var(--leading-relaxed);
+  color: var(--text-muted);
 }
 
 .layered {
   min-height: 125vh;
   display: flex;
-  gap: 10em;
-  background: #121212;
+  gap: var(--layout-xl);
+  background: var(--background);
 }
 
 .layeredBrief {
@@ -141,39 +143,41 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 2em;
+  gap: var(--layout-sm);
   position: relative;
   z-index: 1;
-  padding: 80px 32px;
+  padding: var(--layout-lg) var(--layout-md);
 }
 
 .item {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-sm);
 }
 
 .item h2 {
   margin: 0;
   font-size: clamp(40px, 6vw, 76px);
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   line-height: 0.95;
-  letter-spacing: -0.03em;
+  letter-spacing: var(--tracking-tight);
 }
 
 .item p {
   margin: 0;
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  font-size: var(--font-label);
+  line-height: 1;
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  opacity: 0.78;
+  color: var(--text-muted);
 }
 
 .split {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
-  background: #f2f2ef;
+  background: var(--dummy-background);
 }
 
 .splitCopy,
@@ -182,7 +186,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 32px;
+  padding: var(--layout-sm);
   position: relative;
 }
 
@@ -193,11 +197,11 @@
 
 .splitCopy .kicker,
 .splitCopy .body {
-  color: rgba(15, 15, 15, 0.72);
+  color: var(--dummy-foreground);
 }
 
 .splitMediaCol {
-  background: #e7e6e2;
+  background: color-mix(in srgb, var(--dummy-background) 80%, #d9d6cf 20%);
 }
 
 .splitMediaWrap {
@@ -212,44 +216,46 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #0f0f0f;
+  background: var(--background);
 }
 
 .bannerCopy {
   position: relative;
   z-index: 1;
-  width: min(720px, calc(100% - 48px));
+  width: min(720px, calc(100% - (var(--gutter) * 2)));
   text-align: center;
 }
 
 .bannerTitle {
   margin: 0;
   font-size: clamp(44px, 7vw, 96px);
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   line-height: 0.94;
   letter-spacing: -0.04em;
-  color: rgba(255, 255, 255, 0.96);
+  color: var(--text-strong);
 }
 
 .bannerBody {
   width: min(75%, 560px);
-  margin: 40px auto 0;
-  font-size: 13px;
-  line-height: 1.8;
+  margin: var(--layout-sm) auto 0;
+  font-size: var(--font-body-md);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.82);
 }
 
 .footer {
   display: flex;
-  gap: 24px;
-  padding: 24px;
-  background: #171717;
+  gap: var(--space-xl);
+  padding: var(--space-xl);
+  background: var(--surface-1);
 }
 
 .footer .col:first-child {
   flex: 4;
-  min-height: calc(100vh - 48px);
+  min-height: calc(100vh - (var(--space-xl) * 2));
+  min-height: calc(100svh - (var(--space-xl) * 2));
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -257,7 +263,8 @@
 
 .footerRightCol {
   flex: 2;
-  min-height: calc(100vh - 48px);
+  min-height: calc(100vh - (var(--space-xl) * 2));
+  min-height: calc(100svh - (var(--space-xl) * 2));
   display: flex;
   align-items: center;
 }
@@ -267,14 +274,14 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 24px;
+  gap: var(--space-xl);
 }
 
 .meta {
   margin: 0;
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  font-size: var(--font-label);
   line-height: 1.6;
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.74);
 }
@@ -282,17 +289,17 @@
 .footerLinks {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-sm);
 }
 
 .footerLinks h2 {
   margin: 0;
   font-size: clamp(40px, 6vw, 76px);
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   line-height: 0.95;
   text-transform: uppercase;
-  letter-spacing: -0.03em;
-  color: rgba(255, 255, 255, 0.96);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-strong);
 }
 
 .footerMedia {
@@ -305,7 +312,7 @@
 @media (max-width: 900px) {
   .heroCopy {
     min-height: 100vh;
-    padding: 24px;
+    min-height: 100svh;
   }
 
   .layered {
@@ -320,7 +327,7 @@
     left: auto;
     width: auto;
     transform: none;
-    padding: 72px 24px 24px;
+    padding: var(--layout-lg) var(--layout-sm) var(--layout-sm);
   }
 
   .layeredCover {
@@ -329,7 +336,7 @@
 
   .layeredList {
     min-height: auto;
-    padding: 48px 24px 72px;
+    padding: var(--layout-md) var(--layout-sm) var(--layout-lg);
   }
 
   .split,
@@ -348,7 +355,7 @@
   }
 
   .bannerCopy {
-    width: calc(100% - 48px);
+    width: calc(100% - (var(--gutter) * 2));
   }
 
   .bannerBody {

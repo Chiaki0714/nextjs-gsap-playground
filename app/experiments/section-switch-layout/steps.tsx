@@ -1,4 +1,3 @@
-// app/your-path/steps.tsx
 import type { ReactNode } from 'react';
 import styles from './page.module.css';
 

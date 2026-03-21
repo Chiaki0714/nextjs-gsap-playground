@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import clsx from 'clsx';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -14,15 +14,13 @@ import {
 } from './experiments/_registry/experiments';
 
 export default function Home() {
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
   const [activeTag, setActiveTag] = useState<ActiveTag>('All');
 
-  const visible = useMemo(() => {
-    if (activeTag === 'All') return EXPERIMENTS;
-    return EXPERIMENTS.filter(experiment =>
-      experiment.tags.includes(activeTag),
-    );
-  }, [activeTag]);
+  const visible =
+    activeTag === 'All'
+      ? EXPERIMENTS
+      : EXPERIMENTS.filter(experiment => experiment.tags.includes(activeTag));
 
   useGSAP(
     () => {
@@ -30,13 +28,13 @@ export default function Home() {
       if (!root) return;
 
       const cards = gsap.utils.toArray<HTMLElement>('[data-card]', root);
+      if (!cards.length) return;
+
       const prefersReducedMotion = window.matchMedia(
         '(prefers-reduced-motion: reduce)',
       ).matches;
 
       gsap.killTweensOf(cards);
-
-      if (!cards.length) return;
 
       if (prefersReducedMotion) {
         gsap.set(cards, { autoAlpha: 1, y: 0 });
@@ -60,7 +58,7 @@ export default function Home() {
   return (
     <main className={styles.main} ref={rootRef}>
       <section className={styles.wrapper}>
-        <div className={clsx('containerWide', styles.container)}>
+        <div className={styles.container}>
           <header className={styles.header}>
             <h1 className={styles.title}>GSAP Playground</h1>
             <p className={styles.subtitle}>
@@ -75,6 +73,7 @@ export default function Home() {
                 styles.tag,
                 activeTag === 'All' && styles.tagActive,
               )}
+              aria-pressed={activeTag === 'All'}
               onClick={() => setActiveTag('All')}
             >
               All
@@ -88,6 +87,7 @@ export default function Home() {
                   styles.tag,
                   activeTag === tag && styles.tagActive,
                 )}
+                aria-pressed={activeTag === tag}
                 onClick={() => setActiveTag(tag)}
               >
                 {tag}

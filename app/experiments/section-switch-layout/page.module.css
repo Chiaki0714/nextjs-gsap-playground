@@ -1,7 +1,10 @@
 .wrapper {
   --progress: 0;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
+  background: var(--background);
+  color: var(--foreground);
   will-change: transform;
   transform: translateZ(0);
 }
@@ -9,28 +12,30 @@
 .left {
   width: 50%;
   position: relative;
-  height: 100vh;
-  background: #111;
-  color: white;
+  min-height: 100vh;
+  min-height: 100svh;
+  background: var(--surface-1);
+  color: var(--foreground);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 36px clamp(24px, 4vw, 56px);
+  padding: var(--layout-lg) clamp(24px, 4vw, 56px);
 }
 
 .leftHeader {
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--layout-xs);
 }
 
 .sectionLabel {
   margin: 0;
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  font-size: var(--font-label);
+  line-height: 1;
+  letter-spacing: var(--tracking-wide);
   text-transform: lowercase;
-  opacity: 0.55;
+  color: var(--text-dim);
 }
 
 .indicator {
@@ -42,8 +47,7 @@
 .indicatorTrack,
 .indicatorFill {
   position: absolute;
-  left: 0;
-  right: 0;
+  inset-inline: 0;
   top: 6px;
   height: 1px;
   border-radius: 999px;
@@ -86,13 +90,13 @@
 .stepList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-xs);
 }
 
 .stepListItem {
-  font-size: 13px;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
+  font-size: var(--font-body-sm);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-sm);
   opacity: 0.32;
   transition: opacity 0.3s ease;
 }
@@ -115,6 +119,8 @@
   right: 0;
   max-width: 520px;
   pointer-events: none;
+  display: grid;
+  gap: var(--space-lg);
 }
 
 .textSection a {
@@ -123,39 +129,38 @@
 }
 
 .textSection h2 {
-  font-size: 32px;
-  margin-bottom: 16px;
-}
-
-.textSection p {
-  opacity: 0.7;
-  line-height: 1.6;
-}
-
-.stepBody {
-  opacity: 0.7;
-  line-height: 1.6;
   margin: 0;
+  font-size: var(--font-display-md);
+  line-height: 1.08;
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-regular);
+}
+
+.textSection p,
+.stepBody,
+.stepListBullets {
+  margin: 0;
+  font-size: var(--font-body-lg);
+  line-height: 1.85;
+  color: var(--text-muted);
 }
 
 .em {
-  opacity: 1;
+  color: var(--foreground);
 }
 
 .muted {
-  opacity: 0.55;
+  color: var(--text-dim);
 }
 
 .stepListBullets {
-  margin: 10px 0 0;
-  padding-left: 18px;
-  opacity: 0.65;
+  padding-left: 20px;
 }
 
 .link {
-  opacity: 0.9;
+  color: var(--foreground);
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-underline-offset: 4px;
 }
 
 .link:hover {
@@ -164,9 +169,10 @@
 
 .right {
   width: 50%;
-  height: 100vh;
-  background: #fff;
-  padding: 80px;
+  min-height: 100vh;
+  min-height: 100svh;
+  background: var(--background);
+  padding: var(--layout-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,6 +182,97 @@
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  min-height: clamp(320px, 42vw, 420px);
+  border-radius: clamp(16px, 2vw, 20px);
   overflow: hidden;
+  border: 1px solid var(--border-1);
+  background: var(--surface-2);
+}
+
+@media (max-width: 959px) {
+  .wrapper {
+    min-height: auto;
+    flex-direction: column;
+  }
+
+  .right,
+  .left {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .right {
+    order: -1;
+    padding: var(--layout-lg) 16px 0;
+  }
+
+  .left {
+    padding: var(--layout-md) 16px var(--layout-xl);
+    overflow: visible;
+    background: var(--background);
+  }
+
+  .leftHeader {
+    gap: 0;
+    margin-bottom: var(--layout-sm);
+  }
+
+  .indicator,
+  .stepList {
+    display: none;
+  }
+
+  .sectionLabel {
+    font-size: var(--font-label);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+  }
+
+  .textStage {
+    display: grid;
+    gap: 0;
+    width: min(100%, 760px);
+    margin-inline: auto;
+    padding-block: var(--layout-xs);
+  }
+
+  .textSection {
+    position: static;
+    max-width: none;
+    pointer-events: auto;
+    gap: var(--space-lg);
+    padding-block: var(--layout-md);
+    border-top: 1px solid var(--border-1);
+  }
+
+  .textSection:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .textSection:last-child {
+    padding-bottom: 0;
+  }
+
+  .textSection p,
+  .stepBody,
+  .stepListBullets {
+    max-width: 44ch;
+  }
+}
+
+@media (max-width: 640px) {
+  .imageWrapper {
+    min-height: clamp(280px, 42svh, 360px);
+  }
+
+  .textSection {
+    gap: var(--space-md);
+  }
+
+  .textSection p,
+  .stepBody,
+  .stepListBullets {
+    max-width: none;
+  }
 }

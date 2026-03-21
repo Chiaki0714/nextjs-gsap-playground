@@ -1,3 +1,5 @@
+/* app/page.module.css */
+
 .main {
   min-height: 100vh;
   min-height: 100svh;
@@ -10,57 +12,67 @@
 
 .wrapper {
   width: 100%;
-  padding-top: clamp(48px, 6vw, 72px);
-  padding-bottom: clamp(32px, 5vw, 64px);
+  padding-block: var(--layout-lg);
 }
 
 .container {
+  width: min(var(--container-wide), calc(100% - (var(--gutter) * 2)));
+  margin-inline: auto;
   display: flex;
   flex-direction: column;
-  gap: clamp(16px, 2.6vw, 28px);
+  gap: var(--layout-sm);
 }
 
 .header {
   display: grid;
-  gap: 10px;
+  gap: var(--space-lg);
 }
 
 .title {
-  font-size: clamp(32px, 4.4vw, 48px);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  margin: 0;
+  font-size: var(--font-display-xl);
+  line-height: 1.06;
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-regular);
 }
 
 .subtitle {
+  max-width: 60ch;
+  margin: 0;
+  font-size: var(--font-body-lg);
+  line-height: var(--leading-relaxed);
   color: var(--text-dim);
-  font-size: clamp(14px, 1.4vw, 16px);
-  line-height: 1.7;
 }
 
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-md);
 }
 
 .tag {
   border: 1px solid var(--border-1);
   background: var(--surface-1);
   color: var(--text-muted);
-  padding: 10px 12px;
+  padding: 10px 14px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--font-tag);
+  line-height: 1;
   letter-spacing: 0.02em;
+  font-weight: var(--weight-medium);
   cursor: pointer;
+  touch-action: manipulation;
   transition:
+    transform 0.2s ease,
     border-color 0.2s ease,
     background-color 0.2s ease,
     color 0.2s ease;
-  touch-action: manipulation;
 }
 
-.tag:hover {
-  border-color: var(--border-2);
+.tag:focus-visible {
+  outline: none;
+  border-color: var(--border-3);
+  background: var(--surface-2);
   color: var(--foreground);
 }
 
@@ -72,28 +84,48 @@
 
 .grid {
   display: grid;
-  gap: clamp(14px, 2.2vw, 24px);
   grid-template-columns: 1fr;
+  gap: var(--layout-xs);
 }
 
 .empty {
   max-width: 56ch;
-  padding-top: 8px;
+  padding-top: var(--space-sm);
 }
 
 .emptyTitle {
-  margin: 0 0 6px;
-  font-size: 18px;
-  line-height: 1.4;
-  font-weight: 500;
+  margin: 0;
+  font-size: var(--font-heading-lg);
+  line-height: var(--leading-snug);
+  font-weight: var(--weight-medium);
   color: var(--foreground);
 }
 
 .emptyDescription {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.7;
+  margin: var(--space-md) 0 0;
+  font-size: var(--font-body-lg);
+  line-height: var(--leading-relaxed);
   color: var(--text-dim);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tag:hover {
+    border-color: var(--border-2);
+    color: var(--foreground);
+  }
+
+  .tag:not(.tagActive):hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (hover: none) {
+  .tag:active {
+    transform: scale(0.98);
+    border-color: var(--border-2);
+    background: var(--surface-2);
+    color: var(--foreground);
+  }
 }
 
 @media (min-width: 860px) {

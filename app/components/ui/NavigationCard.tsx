@@ -1,6 +1,3 @@
-// app/components/ui/NavigationCard.tsx
-'use client';
-
 import Link from 'next/link';
 import clsx from 'clsx';
 import styles from './NavigationCard.module.css';
@@ -23,9 +20,7 @@ export default function NavigationCard({
   return (
     <Link
       href={href}
-      scroll
       className={clsx(styles.card, className)}
-      aria-label={`${title} page`}
       data-card={dataCard ? '' : undefined}
     >
       <div className={styles.inner}>

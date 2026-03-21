@@ -1,9 +1,8 @@
 /* app/globals.css */
 @import 'tailwindcss';
 
-/* ===== Design tokens ===== */
 :root {
-  /* Colors (dark fixed for now) */
+  /* ===== Colors ===== */
   --background: #0f0f0f;
   --foreground: #ededed;
 
@@ -18,14 +17,74 @@
   --text-dim: rgba(255, 255, 255, 0.6);
   --text-strong: rgba(255, 255, 255, 0.92);
 
-  /* Layout tokens */
+  --dummy-background: #f4f1ea;
+  --dummy-foreground: rgba(17, 17, 17, 0.72);
+  --dummy-accent: rgba(17, 17, 17, 0.14);
+
+  /* ===== Width ===== */
   --container: 1280px;
-  --container-wide: 1600px;
+  --container-wide: 1440px;
+  --container-ultra: 1600px;
   --prose: 65ch;
   --gutter: clamp(16px, 3vw, 40px);
+
+  /* ===== Layout spacing (fluid) ===== */
+  --layout-xs: clamp(12px, 2vw, 20px);
+  --layout-sm: clamp(20px, 3vw, 32px);
+  --layout-md: clamp(32px, 4vw, 48px);
+  --layout-lg: clamp(48px, 6vw, 72px);
+  --layout-xl: clamp(64px, 8vw, 112px);
+  --layout-2xl: clamp(96px, 12vw, 160px);
+
+  /* ===== Component spacing (fixed) ===== */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 20px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 40px;
+  --space-4xl: 48px;
+  --space-5xl: 64px;
+
+  /* ===== Font size tokens (fluid) ===== */
+  --font-display-xl: clamp(40px, 6vw, 64px);
+  --font-display-lg: clamp(32px, 4.8vw, 48px);
+  --font-display-md: clamp(24px, 3.2vw, 32px);
+  --font-display-sm: clamp(20px, 2.4vw, 24px);
+
+  --font-heading-lg: clamp(16px, 2vw, 20px);
+  --font-heading-md: clamp(14px, 1.6vw, 16px);
+
+  --font-body-lg: clamp(14px, 1.4vw, 16px);
+  --font-body-md: clamp(12px, 1.2vw, 14px);
+  --font-body-sm: clamp(11px, 1vw, 12px);
+
+  --font-label: clamp(11px, 1vw, 12px);
+  --font-tag: 11px;
+  --font-decor-md: clamp(12px, 1.2vw, 14px);
+  --font-decor-sm: clamp(11px, 1vw, 12px);
+
+  /* ===== Line height tokens ===== */
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.8;
+
+  /* ===== Letter spacing tokens ===== */
+  --tracking-tight: -0.02em;
+  --tracking-base: 0;
+  --tracking-sm: 0.02em;
+  --tracking-wide: 0.06em;
+  --tracking-wider: 0.12em;
+
+  /* ===== Font weight tokens ===== */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
 }
 
-/* ===== Base / Reset ===== */
 *,
 *::before,
 *::after {
@@ -99,47 +158,3 @@ a {
     scroll-behavior: auto !important;
   }
 }
-
-/* ===== Layout utilities ===== */
-.container {
-  width: min(var(--container), calc(100% - (var(--gutter) * 2)));
-  margin-inline: auto;
-}
-
-.containerWide {
-  width: min(var(--container-wide), calc(100% - (var(--gutter) * 2)));
-  margin-inline: auto;
-}
-
-.prose {
-  width: min(var(--prose), calc(100% - (var(--gutter) * 2)));
-  margin-inline: auto;
-}
-
-.bleed {
-  width: 100%;
-}
-
-/* ===== Future (optional): enable OS theme later =====
-@media (prefers-color-scheme: light) {
-  :root {
-    --background: #ffffff;
-    --foreground: #111111;
-
-    --surface-1: #f5f5f5;
-    --surface-2: #eaeaea;
-
-    --border-1: #e5e5e5;
-    --border-2: #d4d4d4;
-    --border-3: #bdbdbd;
-
-    --text-muted: rgba(0, 0, 0, 0.7);
-    --text-dim: rgba(0, 0, 0, 0.55);
-    --text-strong: rgba(0, 0, 0, 0.9);
-  }
-
-  html {
-    color-scheme: light;
-  }
-}
-*/

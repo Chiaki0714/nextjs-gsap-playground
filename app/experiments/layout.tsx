@@ -14,13 +14,19 @@ export default function ExperimentsLayout({
       </Link>
 
       <section className={styles.before}>
-        <h2>Before Section</h2>
+        <div className={styles.container}>
+          <p className={styles.kicker}>Experiments</p>
+          <h2 className={styles.sectionTitle}>Before Section</h2>
+        </div>
       </section>
 
       {children}
 
       <section className={styles.after}>
-        <h2>After Section</h2>
+        <div className={styles.container}>
+          <p className={styles.kicker}>Experiments</p>
+          <h2 className={styles.sectionTitle}>After Section</h2>
+        </div>
       </section>
     </main>
   );

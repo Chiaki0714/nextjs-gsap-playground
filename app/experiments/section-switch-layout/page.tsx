@@ -11,16 +11,18 @@ import { STEPS } from './steps';
 gsap.registerPlugin(ScrollTrigger);
 
 const PIN_DWELL = 1.3;
+const DESKTOP_QUERY = '(min-width: 960px)';
+const MOBILE_QUERY = '(max-width: 959px)';
 
 export default function StackedSectionsSwitch() {
   const rootRef = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
-      const pinned = rootRef.current;
-      if (!pinned) return;
+      const root = rootRef.current;
+      if (!root) return;
 
-      const q = gsap.utils.selector(pinned);
+      const q = gsap.utils.selector(root);
       const textEls = q(`.${styles.textSection}`) as HTMLElement[];
       const stepEls = q(`.${styles.stepListItem}`) as HTMLElement[];
       const markEls = q(`.${styles.indicatorMark}`) as HTMLElement[];
@@ -28,8 +30,7 @@ export default function StackedSectionsSwitch() {
       if (!textEls.length || !stepEls.length || !markEls.length) return;
 
       const stepsCount = textEls.length;
-      let currentIndex = 0;
-      let isAnimating = false;
+      const mm = gsap.matchMedia();
 
       const setActiveStep = (index: number) => {
         stepEls.forEach((el, i) => {
@@ -43,85 +44,113 @@ export default function StackedSectionsSwitch() {
         });
       };
 
-      gsap.set(textEls, { autoAlpha: 0, y: 28, yPercent: -50 });
-      gsap.set(textEls[0], { autoAlpha: 1, y: 0 });
+      mm.add(DESKTOP_QUERY, () => {
+        let currentIndex = 0;
+        let isAnimating = false;
 
-      pinned.style.setProperty('--progress', '0');
-      setActiveStep(0);
-      setActiveMarker(0);
+        const clearDesktopState = () => {
+          gsap.killTweensOf(textEls);
+          root.style.setProperty('--progress', '0');
+          setActiveStep(0);
+          setActiveMarker(0);
+        };
 
-      const animateTo = (nextIndex: number, direction: 1 | -1) => {
-        if (isAnimating) return;
-        if (nextIndex === currentIndex) return;
-        if (nextIndex < 0 || nextIndex >= stepsCount) return;
+        const animateTo = (nextIndex: number, direction: 1 | -1) => {
+          if (isAnimating) return;
+          if (nextIndex === currentIndex) return;
+          if (nextIndex < 0 || nextIndex >= stepsCount) return;
 
-        isAnimating = true;
-        setActiveStep(nextIndex);
+          isAnimating = true;
+          setActiveStep(nextIndex);
 
-        const current = textEls[currentIndex];
-        const next = textEls[nextIndex];
-        const exitY = direction === 1 ? -28 : 28;
-        const enterY = direction === 1 ? 28 : -28;
+          const current = textEls[currentIndex];
+          const next = textEls[nextIndex];
+          const exitY = direction === 1 ? -28 : 28;
+          const enterY = direction === 1 ? 28 : -28;
 
-        gsap
-          .timeline({
-            defaults: { duration: 0.55, ease: 'power2.out' },
-            onComplete: () => {
-              currentIndex = nextIndex;
-              setActiveMarker(currentIndex);
-              isAnimating = false;
-            },
-          })
-          .to(current, { autoAlpha: 0, y: exitY, force3D: true }, 0)
-          .fromTo(
-            next,
-            { autoAlpha: 0, y: enterY },
-            { autoAlpha: 1, y: 0, force3D: true },
-            0,
-          );
-      };
+          gsap
+            .timeline({
+              defaults: { duration: 0.55, ease: 'power2.out' },
+              onComplete: () => {
+                currentIndex = nextIndex;
+                setActiveMarker(currentIndex);
+                isAnimating = false;
+              },
+            })
+            .to(current, { autoAlpha: 0, y: exitY, force3D: true }, 0)
+            .fromTo(
+              next,
+              { autoAlpha: 0, y: enterY },
+              { autoAlpha: 1, y: 0, force3D: true },
+              0,
+            );
+        };
 
-      const st = ScrollTrigger.create({
-        trigger: pinned,
-        start: 'top top',
-        end: () => `+=${stepsCount * window.innerHeight * PIN_DWELL}`,
-        pin: true,
-        pinSpacing: true,
-        pinType: 'transform',
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: self => {
-          const progress = self.progress;
-          pinned.style.setProperty('--progress', String(progress));
+        gsap.set(textEls, { autoAlpha: 0, y: 28, yPercent: -50 });
+        gsap.set(textEls[0], { autoAlpha: 1, y: 0 });
 
-          if (progress >= 0.999) {
-            setActiveMarker(stepsCount);
-            return;
-          }
+        clearDesktopState();
 
-          const targetIndex = Math.min(
-            stepsCount - 1,
-            Math.floor(progress * stepsCount),
-          );
+        const st = ScrollTrigger.create({
+          trigger: root,
+          start: 'top top',
+          end: () => `+=${stepsCount * window.innerHeight * PIN_DWELL}`,
+          pin: true,
+          pinSpacing: true,
+          pinType: 'transform',
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: self => {
+            const progress = self.progress;
+            root.style.setProperty('--progress', String(progress));
 
-          setActiveMarker(targetIndex);
+            if (progress >= 0.999) {
+              setActiveMarker(stepsCount);
+              return;
+            }
 
-          if (targetIndex === currentIndex) return;
+            const targetIndex = Math.min(
+              stepsCount - 1,
+              Math.floor(progress * stepsCount),
+            );
 
-          const direction: 1 | -1 = targetIndex > currentIndex ? 1 : -1;
-          const nextIndex =
-            direction === 1
-              ? Math.min(currentIndex + 1, targetIndex)
-              : Math.max(currentIndex - 1, targetIndex);
+            setActiveMarker(targetIndex);
 
-          animateTo(nextIndex, direction);
-        },
+            if (targetIndex === currentIndex) return;
+
+            const direction: 1 | -1 = targetIndex > currentIndex ? 1 : -1;
+            const nextIndex =
+              direction === 1
+                ? Math.min(currentIndex + 1, targetIndex)
+                : Math.max(currentIndex - 1, targetIndex);
+
+            animateTo(nextIndex, direction);
+          },
+        });
+
+        const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+
+        return () => {
+          cancelAnimationFrame(raf);
+          st.kill();
+          clearDesktopState();
+        };
       });
 
-      requestAnimationFrame(() => ScrollTrigger.refresh());
+      mm.add(MOBILE_QUERY, () => {
+        gsap.killTweensOf(textEls);
+        gsap.set(textEls, { clearProps: 'all', autoAlpha: 1, y: 0 });
+        root.style.setProperty('--progress', '0');
+        setActiveStep(0);
+        setActiveMarker(0);
+
+        return () => {
+          gsap.killTweensOf(textEls);
+        };
+      });
 
       return () => {
-        st.kill();
+        mm.revert();
       };
     },
     { scope: rootRef },
@@ -183,9 +212,9 @@ export default function StackedSectionsSwitch() {
         <div className={styles.imageWrapper}>
           <Image
             src='https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2400&q=80'
-            alt='abstract'
+            alt='Abstract landscape used for section-switch layout demo'
             fill
-            sizes='50vw'
+            sizes='(max-width: 959px) 100vw, 50vw'
             style={{ objectFit: 'cover' }}
             priority
           />
