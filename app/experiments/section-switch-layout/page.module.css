@@ -1,3 +1,5 @@
+/* app/experiments/section-switch-layout/page.module.css */
+
 .wrapper {
   --progress: 0;
 
@@ -216,8 +218,8 @@
 @media (max-width: 959px) {
   .wrapper {
     min-height: auto;
-    display: block;
-    background: transparent;
+    flex-direction: column;
+    background: var(--surface-1);
   }
 
   .right,
@@ -228,15 +230,15 @@
   }
 
   .right {
-    order: initial;
+    order: -1;
     padding: var(--layout-lg) var(--gutter) 0;
-    background: transparent;
+    background: var(--surface-1);
   }
 
   .left {
-    padding: var(--layout-md) var(--gutter) var(--layout-lg);
+    padding: var(--layout-md) var(--gutter) var(--layout-xl);
     overflow: visible;
-    background: transparent;
+    background: var(--surface-1);
   }
 
   .leftHeader {

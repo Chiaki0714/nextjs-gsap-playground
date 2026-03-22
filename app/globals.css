@@ -19,9 +19,21 @@
   --text-dim: rgba(0, 0, 0, 0.56);
   --text-strong: rgba(0, 0, 0, 0.92);
 
-  --dummy-background: #2a2620;
-  --dummy-foreground: rgba(255, 255, 255, 0.72);
-  --dummy-accent: rgba(255, 255, 255, 0.14);
+  /* ===== Floating / control ===== */
+  --control-fg: #111111;
+  --control-border: rgba(17, 17, 17, 0.14);
+  --control-bg: rgba(255, 255, 255, 0.78);
+  --control-bg-hover: rgba(255, 255, 255, 0.9);
+
+  /* ===== Overlay / panel ===== */
+  --panel-border-soft: rgba(0, 0, 0, 0.08);
+  --panel-bg-soft: rgba(0, 0, 0, 0.03);
+
+  /* ===== UI line / dot ===== */
+  --ui-line-soft: rgba(0, 0, 0, 0.16);
+  --ui-line-strong: rgba(0, 0, 0, 0.32);
+  --ui-dot-soft: rgba(0, 0, 0, 0.22);
+  --ui-dot-strong: rgba(0, 0, 0, 0.9);
 
   /* ===== Width ===== */
   --container: 1280px;
@@ -98,22 +110,6 @@
 
   /* ===== Blur ===== */
   --blur-frosted: 10px;
-
-  /* ===== Floating / control ===== */
-  --control-fg: #111111;
-  --control-border: rgba(17, 17, 17, 0.14);
-  --control-bg: rgba(255, 255, 255, 0.78);
-  --control-bg-hover: rgba(255, 255, 255, 0.9);
-
-  /* ===== Overlay / panel ===== */
-  --panel-border-soft: rgba(0, 0, 0, 0.08);
-  --panel-bg-soft: rgba(0, 0, 0, 0.03);
-
-  /* ===== UI line / dot ===== */
-  --ui-line-soft: rgba(0, 0, 0, 0.16);
-  --ui-line-strong: rgba(0, 0, 0, 0.32);
-  --ui-dot-soft: rgba(0, 0, 0, 0.22);
-  --ui-dot-strong: rgba(0, 0, 0, 0.9);
 }
 
 @media (prefers-color-scheme: dark) {

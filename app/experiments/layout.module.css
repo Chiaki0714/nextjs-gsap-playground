@@ -43,13 +43,11 @@
 .before,
 .after {
   min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
   display: flex;
   align-items: center;
   padding-block: var(--layout-lg);
-  background: var(--dummy-background);
-  color: var(--dummy-foreground);
+  background: var(--background);
+  color: var(--text-dim);
 }
 
 .container {
@@ -65,7 +63,7 @@
   line-height: 1;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  color: var(--dummy-foreground);
+  color: var(--text-dim);
 }
 
 .sectionTitle {
@@ -74,7 +72,7 @@
   line-height: 1.02;
   letter-spacing: var(--tracking-tight);
   font-weight: var(--weight-regular);
-  color: var(--dummy-accent);
+  color: var(--text-muted);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -95,9 +93,6 @@
 @media (max-width: 640px) {
   .before,
   .after {
-    min-height: 100vh;
-    min-height: 100svh;
-    min-height: 100dvh;
     padding-block: var(--layout-md);
   }
 
