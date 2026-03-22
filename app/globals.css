@@ -2,24 +2,26 @@
 @import 'tailwindcss';
 
 :root {
-  /* ===== Colors ===== */
-  --background: #0f0f0f;
-  --foreground: #ededed;
+  color-scheme: light dark;
 
-  --surface-1: #151515;
-  --surface-2: #1b1b1b;
+  /* ===== Colors: Light ===== */
+  --background: #fcfcfc;
+  --foreground: #111111;
 
-  --border-1: #222;
-  --border-2: #333;
-  --border-3: #444;
+  --surface-1: #f5f5f5;
+  --surface-2: #ebebeb;
 
-  --text-muted: rgba(255, 255, 255, 0.75);
-  --text-dim: rgba(255, 255, 255, 0.6);
-  --text-strong: rgba(255, 255, 255, 0.92);
+  --border-1: #e5e5e5;
+  --border-2: #d4d4d4;
+  --border-3: #b8b8b8;
 
-  --dummy-background: #f4f1ea;
-  --dummy-foreground: rgba(17, 17, 17, 0.72);
-  --dummy-accent: rgba(17, 17, 17, 0.14);
+  --text-muted: rgba(0, 0, 0, 0.72);
+  --text-dim: rgba(0, 0, 0, 0.56);
+  --text-strong: rgba(0, 0, 0, 0.92);
+
+  --dummy-background: #2a2620;
+  --dummy-foreground: rgba(255, 255, 255, 0.72);
+  --dummy-accent: rgba(255, 255, 255, 0.14);
 
   /* ===== Width ===== */
   --container: 1280px;
@@ -83,6 +85,71 @@
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
+
+  /* ===== Radius ===== */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* ===== Motion ===== */
+  --duration-ui: 0.24s;
+  --duration-emphasis: 0.55s;
+
+  /* ===== Blur ===== */
+  --blur-frosted: 10px;
+
+  /* ===== Floating / control ===== */
+  --control-fg: #111111;
+  --control-border: rgba(17, 17, 17, 0.14);
+  --control-bg: rgba(255, 255, 255, 0.78);
+  --control-bg-hover: rgba(255, 255, 255, 0.9);
+
+  /* ===== Overlay / panel ===== */
+  --panel-border-soft: rgba(0, 0, 0, 0.08);
+  --panel-bg-soft: rgba(0, 0, 0, 0.03);
+
+  /* ===== UI line / dot ===== */
+  --ui-line-soft: rgba(0, 0, 0, 0.16);
+  --ui-line-strong: rgba(0, 0, 0, 0.32);
+  --ui-dot-soft: rgba(0, 0, 0, 0.22);
+  --ui-dot-strong: rgba(0, 0, 0, 0.9);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* ===== Colors: Dark ===== */
+    --background: #0f0f0f;
+    --foreground: #ededed;
+
+    --surface-1: #151515;
+    --surface-2: #1b1b1b;
+
+    --border-1: #222222;
+    --border-2: #333333;
+    --border-3: #444444;
+
+    --text-muted: rgba(255, 255, 255, 0.75);
+    --text-dim: rgba(255, 255, 255, 0.6);
+    --text-strong: rgba(255, 255, 255, 0.92);
+
+    --dummy-background: #f4f1ea;
+    --dummy-foreground: rgba(17, 17, 17, 0.72);
+    --dummy-accent: rgba(17, 17, 17, 0.14);
+
+    --control-fg: var(--foreground);
+    --control-border: var(--border-1);
+    --control-bg: rgba(21, 21, 21, 0.82);
+    --control-bg-hover: rgba(27, 27, 27, 0.92);
+
+    --panel-border-soft: rgba(255, 255, 255, 0.09);
+    --panel-bg-soft: rgba(255, 255, 255, 0.03);
+
+    --ui-line-soft: rgba(255, 255, 255, 0.22);
+    --ui-line-strong: rgba(255, 255, 255, 0.85);
+    --ui-dot-soft: rgba(255, 255, 255, 0.26);
+    --ui-dot-strong: rgba(255, 255, 255, 0.95);
+  }
 }
 
 *,
@@ -93,8 +160,8 @@
 
 html {
   height: 100%;
-  color-scheme: dark;
   background: var(--background);
+  color: var(--foreground);
   -webkit-text-size-adjust: 100%;
 }
 
@@ -144,7 +211,7 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline: 2px solid var(--border-3);
   outline-offset: 2px;
 }
 
