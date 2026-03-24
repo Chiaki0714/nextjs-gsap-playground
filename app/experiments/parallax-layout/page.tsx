@@ -5,70 +5,129 @@ import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+
 import styles from './page.module.css';
 import { PARALLAX_IMAGES } from './images';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const IMAGE_START_Y = -8;
-const IMAGE_END_Y = 8;
-const IMAGE_SCALE = 1.2;
-const SCRUB_SMOOTHING = 1;
+const PARALLAX_START = -8;
+const PARALLAX_END = 8;
+const PARALLAX_SCALE = 1.2;
+const PARALLAX_SCRUB = 1;
 
 export default function ParallaxLayoutStudyPage() {
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
 
   useGSAP(
     () => {
       const root = rootRef.current;
       if (!root) return;
 
-      const mediaEls = gsap.utils.toArray<HTMLElement>(
-        `.${styles.media}`,
-        root,
+      const mediaEls = Array.from(
+        root.querySelectorAll<HTMLElement>('[data-parallax="media"]'),
       );
+
       if (!mediaEls.length) return;
 
-      const triggers = mediaEls
-        .map(media => {
-          const image = media.querySelector(
-            `.${styles.mediaImage}`,
-          ) as HTMLElement | null;
-          if (!image) return null;
+      const mm = gsap.matchMedia();
 
-          const depth = Number(media.dataset.depth ?? '1');
-          const startY = IMAGE_START_Y * depth;
-          const endY = IMAGE_END_Y * depth;
+      const refresh = () => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            ScrollTrigger.refresh();
+          });
+        });
+      };
 
-          gsap.set(image, {
-            yPercent: startY,
-            scale: IMAGE_SCALE,
+      mm.add(
+        {
+          motionEnabled: '(prefers-reduced-motion: no-preference)',
+        },
+        context => {
+          const { motionEnabled } = context.conditions as {
+            motionEnabled: boolean;
+          };
+
+          const images = mediaEls
+            .map(media =>
+              media.querySelector<HTMLElement>('[data-parallax="image"]'),
+            )
+            .filter((image): image is HTMLElement => image !== null);
+
+          gsap.killTweensOf(images);
+
+          images.forEach(image => {
+            gsap.set(image, {
+              clearProps: 'transform,willChange',
+            });
           });
 
-          return gsap.fromTo(
-            image,
-            { yPercent: startY },
-            {
-              yPercent: endY,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: media,
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: SCRUB_SMOOTHING,
-                invalidateOnRefresh: true,
-              },
-            },
-          ).scrollTrigger;
-        })
-        .filter(Boolean) as ScrollTrigger[];
+          if (!motionEnabled) {
+            refresh();
+            return;
+          }
 
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
+          const tweens: gsap.core.Tween[] = [];
+
+          mediaEls.forEach(media => {
+            const image = media.querySelector<HTMLElement>(
+              '[data-parallax="image"]',
+            );
+            if (!image) return;
+
+            const depth = Number(media.dataset.depth ?? '1');
+            const startY = PARALLAX_START * depth;
+            const endY = PARALLAX_END * depth;
+
+            gsap.set(image, {
+              yPercent: startY,
+              scale: PARALLAX_SCALE,
+              willChange: 'transform',
+              force3D: true,
+            });
+
+            const tween = gsap.fromTo(
+              image,
+              { yPercent: startY },
+              {
+                yPercent: endY,
+                ease: 'none',
+                overwrite: 'auto',
+                scrollTrigger: {
+                  trigger: media,
+                  start: 'top bottom',
+                  end: 'bottom top',
+                  scrub: PARALLAX_SCRUB,
+                  invalidateOnRefresh: true,
+                },
+              },
+            );
+
+            tweens.push(tween);
+          });
+
+          const handleLoad = () => refresh();
+          const handleResize = () => refresh();
+
+          window.addEventListener('load', handleLoad);
+          window.addEventListener('resize', handleResize);
+
+          refresh();
+
+          return () => {
+            window.removeEventListener('load', handleLoad);
+            window.removeEventListener('resize', handleResize);
+            tweens.forEach(tween => {
+              tween.scrollTrigger?.kill();
+              tween.kill();
+            });
+          };
+        },
+      );
 
       return () => {
-        triggers.forEach(t => t.kill());
+        mm.revert();
       };
     },
     { scope: rootRef },
@@ -77,7 +136,7 @@ export default function ParallaxLayoutStudyPage() {
   return (
     <section ref={rootRef} className={styles.wrapper}>
       <section className={styles.hero}>
-        <div className={styles.media} data-depth='1.05'>
+        <div className={styles.media} data-parallax='media' data-depth='1.05'>
           <Image
             src={PARALLAX_IMAGES.hero.src}
             alt={PARALLAX_IMAGES.hero.alt}
@@ -85,6 +144,7 @@ export default function ParallaxLayoutStudyPage() {
             priority
             sizes='100vw'
             className={styles.mediaImage}
+            data-parallax='image'
           />
           <div className={styles.overlayStrong} />
         </div>
@@ -96,13 +156,19 @@ export default function ParallaxLayoutStudyPage() {
       </section>
 
       <section className={styles.layered}>
-        <div className={styles.media} data-depth='0.8'>
+        <div
+          className={`${styles.media} ${styles.layeredBackgroundMedia}`}
+          data-parallax='media'
+          data-depth='0.8'
+          aria-hidden='true'
+        >
           <Image
             src={PARALLAX_IMAGES.layeredBackground.src}
             alt={PARALLAX_IMAGES.layeredBackground.alt}
             fill
             sizes='100vw'
             className={styles.mediaImage}
+            data-parallax='image'
           />
           <div className={styles.overlaySoft} />
         </div>
@@ -114,13 +180,14 @@ export default function ParallaxLayoutStudyPage() {
         </div>
 
         <div className={`${styles.col} ${styles.layeredCover}`}>
-          <div className={styles.media} data-depth='1.15'>
+          <div className={styles.media} data-parallax='media' data-depth='1.15'>
             <Image
               src={PARALLAX_IMAGES.layeredCover.src}
               alt={PARALLAX_IMAGES.layeredCover.alt}
               fill
-              sizes='40vw'
+              sizes='(max-width: 900px) 100vw, 40vw'
               className={styles.mediaImage}
+              data-parallax='image'
             />
             <div className={styles.overlayLight} />
           </div>
@@ -152,13 +219,18 @@ export default function ParallaxLayoutStudyPage() {
 
         <div className={`${styles.col} ${styles.splitMediaCol}`}>
           <div className={styles.splitMediaWrap}>
-            <div className={styles.media} data-depth='1.1'>
+            <div
+              className={styles.media}
+              data-parallax='media'
+              data-depth='1.1'
+            >
               <Image
                 src={PARALLAX_IMAGES.split.src}
                 alt={PARALLAX_IMAGES.split.alt}
                 fill
-                sizes='50vw'
+                sizes='(max-width: 900px) 100vw, 50vw'
                 className={styles.mediaImage}
+                data-parallax='image'
               />
               <div className={styles.overlayLight} />
             </div>
@@ -167,13 +239,14 @@ export default function ParallaxLayoutStudyPage() {
       </section>
 
       <section className={styles.banner}>
-        <div className={styles.media} data-depth='0.9'>
+        <div className={styles.media} data-parallax='media' data-depth='0.9'>
           <Image
             src={PARALLAX_IMAGES.banner.src}
             alt={PARALLAX_IMAGES.banner.alt}
             fill
             sizes='100vw'
             className={styles.mediaImage}
+            data-parallax='image'
           />
           <div className={styles.overlayStrong} />
         </div>
@@ -205,13 +278,18 @@ export default function ParallaxLayoutStudyPage() {
         <div className={`${styles.col} ${styles.footerRightCol}`}>
           <div className={styles.footerRightInner}>
             <div className={styles.footerMedia}>
-              <div className={styles.media} data-depth='1.1'>
+              <div
+                className={styles.media}
+                data-parallax='media'
+                data-depth='1.1'
+              >
                 <Image
                   src={PARALLAX_IMAGES.footer.src}
                   alt={PARALLAX_IMAGES.footer.alt}
                   fill
-                  sizes='40vw'
+                  sizes='(max-width: 900px) 100vw, 40vw'
                   className={styles.mediaImage}
+                  data-parallax='image'
                 />
                 <div className={styles.overlayLight} />
               </div>

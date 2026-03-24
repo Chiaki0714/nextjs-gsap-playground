@@ -10,7 +10,7 @@ export default function ExperimentsLayout({
 }: ExperimentsLayoutProps) {
   return (
     <main className={styles.main}>
-      <Link href='/' className={styles.back}>
+      <Link href='/' className={styles.back} aria-label='Back to home'>
         <span aria-hidden='true'>←</span>
         <span>Back</span>
       </Link>
