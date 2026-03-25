@@ -1,36 +1,237 @@
 .wrapper {
-  height: 100vh;
+  --horizontal-surface-light: color-mix(
+    in srgb,
+    var(--background) 92%,
+    var(--foreground) 8%
+  );
+  --horizontal-surface-dark: color-mix(
+    in srgb,
+    var(--background) 12%,
+    var(--foreground) 88%
+  );
+
+  background: var(--horizontal-surface-light);
+  color: var(--text-strong);
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  background: var(--horizontal-surface-light);
+  will-change: background-color;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.hero,
+.outro {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding: var(--layout-sm);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.heroTitle,
+.outroTitle {
+  width: min(75%, 22ch);
+  margin: 0;
+  font-size: clamp(40px, 6vw, 64px);
+  font-weight: var(--weight-medium);
+  line-height: 1.125;
+  letter-spacing: -0.075rem;
+}
+
+.outro {
+  background: var(--horizontal-surface-dark);
+  color: color-mix(in srgb, var(--background) 92%, white 8%);
+}
+
+.marquee {
+  position: relative;
+  width: 100%;
+  height: 50svh;
   overflow: hidden;
 }
 
-.panels {
-  display: flex;
+.marqueeWrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
   height: 100%;
+  transform: translate(-50%, -50%) rotate(-5deg);
+}
+
+.marqueeImages {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+  transform: translate(0, -50%);
   will-change: transform;
 }
 
-.panel {
-  flex: 0 0 100vw;
-  height: 100vh;
+.marqueeItem {
+  flex: 1;
+  min-width: 0;
+}
+
+.marqueeMedia {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 3;
+  overflow: hidden;
+}
+
+.horizontal {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.horizontalTrack {
+  position: relative;
+  width: 300%;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   display: flex;
-  align-items: center;
+  will-change: transform;
+}
+
+.horizontalSlide {
+  flex: 1;
+  min-width: 0;
+  min-height: 100%;
+  display: flex;
+  gap: var(--layout-sm);
+  padding: var(--layout-sm);
+}
+
+.horizontalSlide:not(.horizontalSpacer) {
+  background: var(--horizontal-surface-dark);
+  color: color-mix(in srgb, var(--background) 92%, white 8%);
+}
+
+.horizontalSpacer {
+  background: transparent;
+}
+
+.slideColumn {
+  display: flex;
   justify-content: center;
-  font-size: 72px;
-  font-weight: bold;
+  align-items: center;
 }
 
-.p1 {
-  background: #f97316;
+.horizontalSlide .slideColumn:first-child {
+  flex: 3;
 }
 
-.p2 {
-  background: #a855f7;
+.horizontalSlide .slideColumn:last-child {
+  flex: 2;
 }
 
-.p3 {
-  background: #22c55e;
+.slideTitle {
+  display: none;
 }
 
-.p4 {
-  background: #0ea5e9;
+.slideBody {
+  width: 75%;
+  margin: 0;
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: var(--weight-medium);
+  line-height: 1.125;
+  letter-spacing: -0.025rem;
+}
+
+.slideMedia {
+  position: relative;
+  width: 75%;
+  height: 75%;
+  overflow: hidden;
+}
+
+@media (max-width: 1000px) {
+  .heroTitle,
+  .outroTitle {
+    width: 100%;
+    font-size: clamp(32px, 8vw, 40px);
+    letter-spacing: -0.05rem;
+  }
+
+  .marqueeWrapper {
+    width: 300%;
+  }
+
+  .horizontalTrack {
+    width: 100%;
+    min-height: auto;
+    display: block;
+  }
+
+  .horizontal {
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .horizontalSlide {
+    padding: var(--layout-lg);
+    flex-direction: column-reverse;
+    gap: var(--layout-sm);
+  }
+
+  .horizontalSpacer {
+    display: none;
+  }
+
+  .horizontalSlide .slideColumn:first-child,
+  .horizontalSlide .slideColumn:last-child {
+    flex: none;
+  }
+
+  .horizontalSlide .slideColumn:first-child {
+    align-items: flex-start;
+  }
+
+  .slideBody {
+    width: 100%;
+    font-size: clamp(20px, 4vw, 28px);
+  }
+
+  .slideMedia {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero,
+  .outro {
+    padding: var(--layout-md) var(--layout-sm);
+  }
+
+  .marquee {
+    height: 40svh;
+  }
+
+  .horizontalSlide {
+    padding: var(--layout-md) var(--layout-sm);
+  }
 }

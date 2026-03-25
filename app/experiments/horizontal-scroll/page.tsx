@@ -1,75 +1,398 @@
 'use client';
 
 import { useRef } from 'react';
+import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Flip } from 'gsap/Flip';
 import { useGSAP } from '@gsap/react';
+
 import styles from './page.module.css';
+import { HORIZONTAL_SLIDES, MARQUEE_IMAGES, PIN_IMAGE_INDEX } from './images';
 
-gsap.registerPlugin(ScrollTrigger);
-
-const ENTRY_DWELL = 0.35;
-const EXIT_DWELL = 0.35;
-const END_MULTIPLIER = 1.5;
+gsap.registerPlugin(ScrollTrigger, Flip);
 
 export default function HorizontalScrollPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
 
   useGSAP(
     () => {
-      const root = containerRef.current;
+      const root = rootRef.current;
       if (!root) return;
 
-      const panelsEl = root.querySelector(
-        `.${styles.panels}`,
-      ) as HTMLElement | null;
-      if (!panelsEl) return;
+      const container = root.querySelector<HTMLElement>(
+        '[data-hs="container"]',
+      );
+      const marquee = root.querySelector<HTMLElement>('[data-hs="marquee"]');
+      const marqueeImages = root.querySelector<HTMLElement>(
+        '[data-hs="marquee-images"]',
+      );
+      const horizontal = root.querySelector<HTMLElement>(
+        '[data-hs="horizontal"]',
+      );
+      const horizontalTrack = root.querySelector<HTMLElement>(
+        '[data-hs="horizontal-track"]',
+      );
+      const pinImage = root.querySelector<HTMLImageElement>(
+        '[data-hs="pin-image"] img',
+      );
 
-      const panels = gsap.utils.toArray<HTMLElement>(`.${styles.panel}`, root);
-      if (!panels.length) return;
+      if (
+        !container ||
+        !marquee ||
+        !marqueeImages ||
+        !horizontal ||
+        !horizontalTrack ||
+        !pinImage
+      ) {
+        return;
+      }
 
-      const getTotalMove = () =>
-        Math.max(0, panelsEl.scrollWidth - window.innerWidth);
+      const mm = gsap.matchMedia();
 
-      if (getTotalMove() === 0) return;
+      const getSurfaceColors = () => {
+        const computed = getComputedStyle(root);
+        return {
+          light: computed.getPropertyValue('--horizontal-surface-light').trim(),
+          dark: computed.getPropertyValue('--horizontal-surface-dark').trim(),
+        };
+      };
 
-      const tl = gsap.timeline({ defaults: { ease: 'none' } });
+      const resetStaticState = () => {
+        gsap.set(container, { clearProps: 'backgroundColor' });
+        gsap.set(marqueeImages, { clearProps: 'xPercent,willChange' });
+        gsap.set(horizontalTrack, { clearProps: 'xPercent,willChange' });
+        gsap.set(pinImage, { clearProps: 'opacity' });
+      };
 
-      tl.to({}, { duration: ENTRY_DWELL })
-        .to(panelsEl, {
-          x: () => -getTotalMove(),
-          duration: panels.length,
-        })
-        .to({}, { duration: EXIT_DWELL });
+      mm.add(
+        {
+          desktopMotion:
+            '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+        },
+        context => {
+          const { desktopMotion } = context.conditions as {
+            desktopMotion: boolean;
+          };
 
-      const st = ScrollTrigger.create({
-        trigger: `.${styles.wrapper}`,
-        start: 'top top',
-        end: () => `+=${getTotalMove() * END_MULTIPLIER}`,
-        pin: true,
-        scrub: 1,
-        animation: tl,
-        invalidateOnRefresh: true,
-      });
+          resetStaticState();
+
+          if (!desktopMotion) {
+            return;
+          }
+
+          const { light, dark } = getSurfaceColors();
+
+          let pinnedClone: HTMLImageElement | null = null;
+          let isCloneActive = false;
+          let flipAnimation: gsap.core.Animation | null = null;
+
+          gsap.set(marqueeImages, {
+            xPercent: -75,
+            willChange: 'transform',
+          });
+
+          const createPinnedClone = () => {
+            if (isCloneActive) return;
+
+            const rect = pinImage.getBoundingClientRect();
+            const clone = pinImage.cloneNode(true) as HTMLImageElement;
+
+            gsap.set(clone, {
+              position: 'fixed',
+              left: rect.left,
+              top: rect.top,
+              width: rect.width,
+              height: rect.height,
+              rotate: -5,
+              transformOrigin: 'center center',
+              pointerEvents: 'none',
+              zIndex: 100,
+              objectFit: 'cover',
+              willChange: 'transform',
+            });
+
+            document.body.appendChild(clone);
+            gsap.set(pinImage, { opacity: 0 });
+
+            pinnedClone = clone;
+            isCloneActive = true;
+          };
+
+          const removePinnedClone = () => {
+            if (!isCloneActive) return;
+
+            if (flipAnimation) {
+              flipAnimation.kill();
+              flipAnimation = null;
+            }
+
+            if (pinnedClone) {
+              pinnedClone.remove();
+              pinnedClone = null;
+            }
+
+            gsap.set(pinImage, { opacity: 1 });
+            isCloneActive = false;
+          };
+
+          const getHorizontalPinDistance = () => window.innerHeight * 5;
+          const getProgressDistance = () => window.innerHeight * 5.5;
+
+          const marqueeTrigger = ScrollTrigger.create({
+            trigger: marquee,
+            start: 'top bottom',
+            end: 'top top',
+            scrub: true,
+            onUpdate: self => {
+              const xPosition = -75 + self.progress * 25;
+
+              gsap.set(marqueeImages, {
+                xPercent: xPosition,
+              });
+            },
+          });
+
+          const pinSectionTrigger = ScrollTrigger.create({
+            trigger: horizontal,
+            start: 'top top',
+            end: () => `+=${getHorizontalPinDistance()}`,
+            pin: true,
+            invalidateOnRefresh: true,
+          });
+
+          const cloneTrigger = ScrollTrigger.create({
+            trigger: marquee,
+            start: 'top top',
+            onEnter: createPinnedClone,
+            onEnterBack: createPinnedClone,
+            onLeaveBack: removePinnedClone,
+          });
+
+          const flipSetupTrigger = ScrollTrigger.create({
+            trigger: horizontal,
+            start: 'top 50%',
+            end: () => `+=${getProgressDistance()}`,
+            onEnter: () => {
+              if (!pinnedClone || !isCloneActive || flipAnimation) return;
+
+              const state = Flip.getState(pinnedClone);
+
+              gsap.set(pinnedClone, {
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                width: window.innerWidth,
+                height: window.innerHeight,
+                rotate: 0,
+                transformOrigin: 'center center',
+              });
+
+              flipAnimation = Flip.from(state, {
+                duration: 1,
+                ease: 'none',
+                paused: true,
+              });
+            },
+            onLeaveBack: () => {
+              if (flipAnimation) {
+                flipAnimation.kill();
+                flipAnimation = null;
+              }
+
+              gsap.set(container, {
+                backgroundColor: light,
+              });
+
+              gsap.set(horizontalTrack, {
+                xPercent: 0,
+              });
+
+              if (pinnedClone) {
+                gsap.set(pinnedClone, {
+                  xPercent: 0,
+                });
+              }
+            },
+          });
+
+          const progressTrigger = ScrollTrigger.create({
+            trigger: horizontal,
+            start: 'top 50%',
+            end: () => `+=${getProgressDistance()}`,
+            invalidateOnRefresh: true,
+            onUpdate: self => {
+              const progress = self.progress;
+
+              if (progress <= 0.05) {
+                const bgProgress = Math.min(progress / 0.05, 1);
+                const nextColor = gsap.utils.interpolate(
+                  light,
+                  dark,
+                  bgProgress,
+                );
+
+                gsap.set(container, {
+                  backgroundColor: nextColor,
+                });
+              } else {
+                gsap.set(container, {
+                  backgroundColor: dark,
+                });
+              }
+
+              if (progress <= 0.2) {
+                const flipProgress = progress / 0.2;
+
+                if (flipAnimation) {
+                  flipAnimation.progress(flipProgress);
+                }
+              }
+
+              if (progress > 0.2 && progress <= 0.95) {
+                if (flipAnimation) {
+                  flipAnimation.progress(1);
+                }
+
+                const horizontalProgress = (progress - 0.2) / 0.75;
+                const wrapperTranslateX = -66.67 * horizontalProgress;
+
+                gsap.set(horizontalTrack, {
+                  xPercent: wrapperTranslateX,
+                });
+
+                if (pinnedClone) {
+                  gsap.set(pinnedClone, {
+                    xPercent: -200 * horizontalProgress,
+                  });
+                }
+              } else if (progress > 0.95) {
+                if (flipAnimation) {
+                  flipAnimation.progress(1);
+                }
+
+                gsap.set(horizontalTrack, {
+                  xPercent: -66.67,
+                });
+
+                if (pinnedClone) {
+                  gsap.set(pinnedClone, {
+                    xPercent: -200,
+                  });
+                }
+              }
+            },
+          });
+
+          const handleLoad = () => {
+            ScrollTrigger.refresh();
+          };
+
+          window.addEventListener('load', handleLoad);
+
+          return () => {
+            window.removeEventListener('load', handleLoad);
+
+            marqueeTrigger.kill();
+            progressTrigger.kill();
+            flipSetupTrigger.kill();
+            cloneTrigger.kill();
+            pinSectionTrigger.kill();
+
+            if (flipAnimation) {
+              flipAnimation.kill();
+              flipAnimation = null;
+            }
+
+            removePinnedClone();
+            resetStaticState();
+            ScrollTrigger.clearScrollMemory?.();
+          };
+        },
+      );
 
       return () => {
-        st.kill();
-        tl.kill();
+        mm.revert();
       };
     },
-    { scope: containerRef },
+    { scope: rootRef },
   );
 
   return (
-    <section ref={containerRef}>
-      <section className={styles.wrapper}>
-        <div className={styles.panels}>
-          <section className={`${styles.panel} ${styles.p1}`}>ONE</section>
-          <section className={`${styles.panel} ${styles.p2}`}>TWO</section>
-          <section className={`${styles.panel} ${styles.p3}`}>THREE</section>
-          <section className={`${styles.panel} ${styles.p4}`}>FOUR</section>
-        </div>
-      </section>
+    <section ref={rootRef} className={styles.wrapper}>
+      <div className={styles.container} data-hs='container'>
+        <section className={styles.hero}>
+          <h1 className={styles.heroTitle}>
+            Fragments of thought arranged in sequence become patterns. They
+            unfold step by step, shaping meaning as they move forward.
+          </h1>
+        </section>
+
+        <section className={styles.marquee} data-hs='marquee'>
+          <div className={styles.marqueeWrapper}>
+            <div className={styles.marqueeImages} data-hs='marquee-images'>
+              {MARQUEE_IMAGES.map((image, index) => {
+                const isPinTarget = index === PIN_IMAGE_INDEX;
+
+                return (
+                  <div
+                    key={`${image.src}-${index}`}
+                    className={styles.marqueeItem}
+                    data-hs={isPinTarget ? 'pin-image' : undefined}
+                  >
+                    <div className={styles.marqueeMedia}>
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        fill
+                        sizes='(max-width: 1000px) 38vw, 18vw'
+                        className={styles.image}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.horizontal} data-hs='horizontal'>
+          <div className={styles.horizontalTrack} data-hs='horizontal-track'>
+            <div
+              className={`${styles.horizontalSlide} ${styles.horizontalSpacer}`}
+              aria-hidden='true'
+            />
+
+            {HORIZONTAL_SLIDES.map(slide => (
+              <article key={slide.title} className={styles.horizontalSlide}>
+                <div className={styles.slideColumn}>
+                  <h2 className={styles.slideTitle}>{slide.title}</h2>
+                  <p className={styles.slideBody}>{slide.body}</p>
+                </div>
+
+                <div className={styles.slideColumn}>
+                  <div className={styles.slideMedia}>
+                    <Image
+                      src={slide.src}
+                      alt={slide.alt}
+                      fill
+                      sizes='(max-width: 1000px) 100vw, 38vw'
+                      className={styles.image}
+                    />
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.outro}>
+          <h2 className={styles.outroTitle}>
+            Shadows fold into light. Shapes shift across the frame, reminding us
+            that stillness is only temporary.
+          </h2>
+        </section>
+      </div>
     </section>
   );
 }
