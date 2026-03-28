@@ -104,7 +104,6 @@ export default function HorizontalScrollPage() {
               top: rect.top,
               width: rect.width,
               height: rect.height,
-              rotate: -5,
               transformOrigin: 'center center',
               pointerEvents: 'none',
               zIndex: 100,
@@ -145,7 +144,7 @@ export default function HorizontalScrollPage() {
             end: 'top top',
             scrub: true,
             onUpdate: self => {
-              const xPosition = -75 + self.progress * 25;
+              const xPosition = -60 + self.progress * 10;
 
               gsap.set(marqueeImages, {
                 xPercent: xPosition,
@@ -184,7 +183,6 @@ export default function HorizontalScrollPage() {
                 top: 0,
                 width: window.innerWidth,
                 height: window.innerHeight,
-                rotate: 0,
                 transformOrigin: 'center center',
               });
 

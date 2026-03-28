@@ -1,0 +1,173 @@
+.wrapper {
+  --reveal-surface: color-mix(
+    in srgb,
+    var(--background) 92%,
+    var(--foreground) 8%
+  );
+  --reveal-foreground: var(--text-strong);
+  --reveal-header: color-mix(in srgb, white 88%, var(--background) 12%);
+
+  background: var(--reveal-surface);
+  color: var(--reveal-foreground);
+}
+
+.banner {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  background: var(--reveal-surface);
+  overflow: clip;
+}
+
+.bannerMediaBox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  z-index: 1;
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+  will-change: width, height, transform, opacity;
+}
+
+.bannerMedia {
+  position: absolute;
+  inset: 0;
+}
+
+.bannerImage {
+  object-fit: cover;
+  object-position: center center;
+  will-change: transform;
+}
+
+.bannerHeader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 4;
+  width: min(var(--container), calc(100% - (var(--gutter) * 2)));
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.bannerHeaderTitle {
+  margin: 0;
+  font-size: var(--font-display-xl);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--reveal-header);
+}
+
+.bannerHeaderWord {
+  display: inline-block;
+  margin-right: 0.22em;
+}
+
+.bannerHeaderWord:last-child {
+  margin-right: 0;
+}
+
+.bannerIntroTextContainer {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  gap: var(--space-sm);
+  transform: translateY(-50%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.bannerIntroText {
+  flex: 1;
+  display: flex;
+  will-change: transform;
+}
+
+.bannerIntroText:first-child {
+  justify-content: flex-end;
+  padding-right: var(--layout-xs);
+}
+
+.bannerIntroText:last-child {
+  justify-content: flex-start;
+  padding-left: var(--layout-xs);
+}
+
+.bannerIntroText h1 {
+  margin: 0;
+  font-size: var(--font-display-xl);
+  font-weight: var(--weight-medium);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: var(--reveal-foreground);
+}
+
+@media (max-width: 900px) {
+  .banner {
+    height: auto;
+    padding: var(--layout-lg) var(--layout-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--layout-md);
+  }
+
+  .bannerMediaBox {
+    display: none;
+  }
+
+  .bannerHeader {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    transform: none;
+    order: 2;
+  }
+
+  .bannerHeaderTitle {
+    font-size: clamp(32px, 8vw, 52px);
+    color: var(--reveal-foreground);
+  }
+
+  .bannerHeaderWord {
+    opacity: 1 !important;
+  }
+
+  .bannerIntroTextContainer {
+    position: relative;
+    top: auto;
+    transform: none;
+    gap: var(--layout-sm);
+    flex-direction: column;
+    order: 1;
+  }
+
+  .bannerIntroText,
+  .bannerIntroText:first-child,
+  .bannerIntroText:last-child {
+    justify-content: flex-start;
+    padding: 0;
+  }
+
+  .bannerIntroText h1 {
+    font-size: clamp(40px, 12vw, 72px);
+  }
+
+  .banner::after {
+    content: '';
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background-image: url('https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1800&q=80');
+    background-size: cover;
+    background-position: center;
+    order: 3;
+  }
+}

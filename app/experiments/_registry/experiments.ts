@@ -46,6 +46,13 @@ export const EXPERIMENTS: Experiment[] = [
     href: '/experiments/parallax-layout',
     tags: ['ScrollTrigger', 'Scrub', 'Layout'],
   },
+  {
+    title: 'Image Reveal Layout',
+    description:
+      'Pinned text split layout with expanding media reveal and full-bleed transition',
+    href: '/experiments/image-reveal-layout',
+    tags: ['ScrollTrigger', 'Pin', 'Reveal', 'Layout'],
+  },
 ];
 
 export const ALL_TAGS: Tag[] = [
