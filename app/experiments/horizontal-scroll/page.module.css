@@ -175,8 +175,8 @@
     letter-spacing: -0.05rem;
   }
 
-  .marqueeWrapper {
-    width: 300%;
+  .marquee {
+    display: none;
   }
 
   .horizontalTrack {
