@@ -8,6 +8,7 @@ import { useGSAP } from '@gsap/react';
 
 import styles from './page.module.css';
 import { PARALLAX_IMAGES } from './images';
+import { MEDIA_QUERIES } from '@/app/lib/media-queries';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -40,31 +41,26 @@ export default function ParallaxLayoutStudyPage() {
           if (!image) return;
 
           gsap.killTweensOf(image);
-          gsap.set(image, {
-            clearProps: 'transform,willChange',
-          });
+          gsap.set(image, { clearProps: 'transform,willChange' });
         });
       };
 
       const refresh = () => {
-        requestAnimationFrame(() => {
-          ScrollTrigger.refresh();
-        });
+        requestAnimationFrame(() => ScrollTrigger.refresh());
       };
 
       mm.add(
         {
-          desktopParallax:
-            '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+          desktopMotion: MEDIA_QUERIES.desktopMotion,
         },
         context => {
-          const { desktopParallax } = context.conditions as {
-            desktopParallax: boolean;
+          const { desktopMotion } = context.conditions as {
+            desktopMotion: boolean;
           };
 
           clearImages();
 
-          if (!desktopParallax) {
+          if (!desktopMotion) {
             refresh();
             return;
           }
@@ -78,6 +74,7 @@ export default function ParallaxLayoutStudyPage() {
             if (!image) return;
 
             const depth = Number(media.dataset.depth ?? '1');
+
             const startY = PARALLAX_START * depth;
             const endY = PARALLAX_END * depth;
 
@@ -111,14 +108,13 @@ export default function ParallaxLayoutStudyPage() {
           const handleLoad = () => refresh();
 
           window.addEventListener('load', handleLoad);
-
           refresh();
 
           return () => {
             window.removeEventListener('load', handleLoad);
-            tweens.forEach(tween => {
-              tween.scrollTrigger?.kill();
-              tween.kill();
+            tweens.forEach(t => {
+              t.scrollTrigger?.kill();
+              t.kill();
             });
             clearImages();
           };

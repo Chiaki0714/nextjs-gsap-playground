@@ -8,6 +8,7 @@ import { useGSAP } from '@gsap/react';
 
 import styles from './page.module.css';
 import { REVEAL_IMAGE } from './images';
+import { MEDIA_QUERIES } from '@/app/lib/media-queries';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -58,7 +59,6 @@ export default function ImageRevealLayoutPage() {
       }
 
       const [leftIntroText, rightIntroText] = introTexts;
-
       const mm = gsap.matchMedia();
 
       const clearAnimatedState = () => {
@@ -99,20 +99,9 @@ export default function ImageRevealLayoutPage() {
       const updateMediaBox = (progress: number) => {
         const revealProgress = normalizeRange(progress, 0, IMAGE_REVEAL_END);
 
-        const nextWidth = gsap.utils.interpolate(
-          0,
-          window.innerWidth,
-          revealProgress,
-        );
-        const nextHeight = gsap.utils.interpolate(
-          0,
-          window.innerHeight,
-          revealProgress,
-        );
-
         gsap.set(mediaBox, {
-          width: nextWidth,
-          height: nextHeight,
+          width: gsap.utils.interpolate(0, window.innerWidth, revealProgress),
+          height: gsap.utils.interpolate(0, window.innerHeight, revealProgress),
           autoAlpha: revealProgress > MIN_VISIBLE_SCALE ? 1 : 0,
         });
       };
@@ -141,14 +130,9 @@ export default function ImageRevealLayoutPage() {
 
       const updateHeaderScale = (progress: number) => {
         const revealProgress = normalizeRange(progress, 0, IMAGE_REVEAL_END);
-        const nextScale = gsap.utils.interpolate(
-          MIN_VISIBLE_SCALE,
-          1,
-          revealProgress,
-        );
 
         gsap.set(header, {
-          scale: nextScale,
+          scale: gsap.utils.interpolate(MIN_VISIBLE_SCALE, 1, revealProgress),
         });
       };
 
@@ -195,8 +179,7 @@ export default function ImageRevealLayoutPage() {
 
       mm.add(
         {
-          desktopMotion:
-            '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+          desktopMotion: MEDIA_QUERIES.desktopMotion,
         },
         context => {
           const { desktopMotion } = context.conditions as {

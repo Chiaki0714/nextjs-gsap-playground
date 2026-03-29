@@ -8,10 +8,13 @@ import { useGSAP } from '@gsap/react';
 
 import styles from './page.module.css';
 import { STEPS } from './steps';
+import { MEDIA_QUERIES } from '@/app/lib/media-queries';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const PIN_DWELL = 1.3;
+const STEP_OFFSET = 28;
+const STEP_TRANSITION_DURATION = 0.55;
 
 export default function StackedSectionsSwitch() {
   const rootRef = useRef<HTMLElement | null>(null);
@@ -58,18 +61,32 @@ export default function StackedSectionsSwitch() {
         setActiveMarker(0);
       };
 
+      const setDesktopInitialState = () => {
+        gsap.killTweensOf(textEls);
+        gsap.set(textEls, {
+          autoAlpha: 0,
+          y: STEP_OFFSET,
+          yPercent: -50,
+        });
+        gsap.set(textEls[0], {
+          autoAlpha: 1,
+          y: 0,
+        });
+        root.style.setProperty('--progress', '0');
+        setActiveStep(0);
+        setActiveMarker(0);
+      };
+
       mm.add(
         {
-          isDesktop: '(min-width: 960px)',
-          reduceMotion: '(prefers-reduced-motion: reduce)',
+          desktopMotion: MEDIA_QUERIES.desktopMotion,
         },
         context => {
-          const { isDesktop, reduceMotion } = context.conditions as {
-            isDesktop: boolean;
-            reduceMotion: boolean;
+          const { desktopMotion } = context.conditions as {
+            desktopMotion: boolean;
           };
 
-          if (!isDesktop || reduceMotion) {
+          if (!desktopMotion) {
             setStaticState();
 
             return () => {
@@ -79,13 +96,6 @@ export default function StackedSectionsSwitch() {
 
           let currentIndex = 0;
           let isAnimating = false;
-
-          const clearDesktopState = () => {
-            gsap.killTweensOf(textEls);
-            root.style.setProperty('--progress', '0');
-            setActiveStep(0);
-            setActiveMarker(0);
-          };
 
           const animateTo = (nextIndex: number, direction: 1 | -1) => {
             if (isAnimating) return;
@@ -97,12 +107,15 @@ export default function StackedSectionsSwitch() {
 
             const current = textEls[currentIndex];
             const next = textEls[nextIndex];
-            const exitY = direction === 1 ? -28 : 28;
-            const enterY = direction === 1 ? 28 : -28;
+            const exitY = direction === 1 ? -STEP_OFFSET : STEP_OFFSET;
+            const enterY = direction === 1 ? STEP_OFFSET : -STEP_OFFSET;
 
             gsap
               .timeline({
-                defaults: { duration: 0.55, ease: 'power2.out' },
+                defaults: {
+                  duration: STEP_TRANSITION_DURATION,
+                  ease: 'power2.out',
+                },
                 onComplete: () => {
                   currentIndex = nextIndex;
                   setActiveMarker(currentIndex);
@@ -118,12 +131,9 @@ export default function StackedSectionsSwitch() {
               );
           };
 
-          gsap.set(textEls, { autoAlpha: 0, y: 28, yPercent: -50 });
-          gsap.set(textEls[0], { autoAlpha: 1, y: 0 });
+          setDesktopInitialState();
 
-          clearDesktopState();
-
-          const st = ScrollTrigger.create({
+          const trigger = ScrollTrigger.create({
             trigger: root,
             start: 'top top',
             end: () => `+=${stepsCount * window.innerHeight * PIN_DWELL}`,
@@ -132,6 +142,11 @@ export default function StackedSectionsSwitch() {
             pinType: 'transform',
             anticipatePin: 1,
             invalidateOnRefresh: true,
+            onRefreshInit: () => {
+              setDesktopInitialState();
+              currentIndex = 0;
+              isAnimating = false;
+            },
             onUpdate: self => {
               const progress = self.progress;
               root.style.setProperty('--progress', String(progress));
@@ -166,8 +181,8 @@ export default function StackedSectionsSwitch() {
 
           return () => {
             cancelAnimationFrame(rafId);
-            st.kill();
-            clearDesktopState();
+            trigger.kill();
+            setStaticState();
           };
         },
       );
@@ -239,7 +254,7 @@ export default function StackedSectionsSwitch() {
             src='https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2400&q=80'
             alt='Abstract landscape used for section-switch layout demo'
             fill
-            sizes='(max-width: 959px) 100vw, 50vw'
+            sizes='(max-width: 64rem) 100vw, 50vw'
             style={{ objectFit: 'cover' }}
             priority
           />

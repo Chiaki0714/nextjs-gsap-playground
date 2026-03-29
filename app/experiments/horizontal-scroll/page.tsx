@@ -9,6 +9,7 @@ import { useGSAP } from '@gsap/react';
 
 import styles from './page.module.css';
 import { HORIZONTAL_SLIDES, MARQUEE_IMAGES, PIN_IMAGE_INDEX } from './images';
+import { MEDIA_QUERIES } from '@/app/lib/media-queries';
 
 gsap.registerPlugin(ScrollTrigger, Flip);
 
@@ -52,6 +53,7 @@ export default function HorizontalScrollPage() {
 
       const getSurfaceColors = () => {
         const computed = getComputedStyle(root);
+
         return {
           light: computed.getPropertyValue('--horizontal-surface-light').trim(),
           dark: computed.getPropertyValue('--horizontal-surface-dark').trim(),
@@ -67,8 +69,7 @@ export default function HorizontalScrollPage() {
 
       mm.add(
         {
-          desktopMotion:
-            '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+          desktopMotion: MEDIA_QUERIES.desktopMotion,
         },
         context => {
           const { desktopMotion } = context.conditions as {
@@ -144,10 +145,8 @@ export default function HorizontalScrollPage() {
             end: 'top top',
             scrub: true,
             onUpdate: self => {
-              const xPosition = -60 + self.progress * 10;
-
               gsap.set(marqueeImages, {
-                xPercent: xPosition,
+                xPercent: -60 + self.progress * 10,
               });
             },
           });
@@ -198,18 +197,11 @@ export default function HorizontalScrollPage() {
                 flipAnimation = null;
               }
 
-              gsap.set(container, {
-                backgroundColor: light,
-              });
-
-              gsap.set(horizontalTrack, {
-                xPercent: 0,
-              });
+              gsap.set(container, { backgroundColor: light });
+              gsap.set(horizontalTrack, { xPercent: 0 });
 
               if (pinnedClone) {
-                gsap.set(pinnedClone, {
-                  xPercent: 0,
-                });
+                gsap.set(pinnedClone, { xPercent: 0 });
               }
             },
           });
@@ -223,61 +215,44 @@ export default function HorizontalScrollPage() {
               const progress = self.progress;
 
               if (progress <= 0.05) {
-                const bgProgress = Math.min(progress / 0.05, 1);
-                const nextColor = gsap.utils.interpolate(
-                  light,
-                  dark,
-                  bgProgress,
-                );
-
                 gsap.set(container, {
-                  backgroundColor: nextColor,
+                  backgroundColor: gsap.utils.interpolate(
+                    light,
+                    dark,
+                    Math.min(progress / 0.05, 1),
+                  ),
                 });
               } else {
-                gsap.set(container, {
-                  backgroundColor: dark,
-                });
+                gsap.set(container, { backgroundColor: dark });
               }
 
               if (progress <= 0.2) {
-                const flipProgress = progress / 0.2;
-
-                if (flipAnimation) {
-                  flipAnimation.progress(flipProgress);
-                }
+                flipAnimation?.progress(progress / 0.2);
+                return;
               }
 
-              if (progress > 0.2 && progress <= 0.95) {
-                if (flipAnimation) {
-                  flipAnimation.progress(1);
-                }
+              if (progress <= 0.95) {
+                flipAnimation?.progress(1);
 
                 const horizontalProgress = (progress - 0.2) / 0.75;
                 const wrapperTranslateX = -66.67 * horizontalProgress;
 
-                gsap.set(horizontalTrack, {
-                  xPercent: wrapperTranslateX,
-                });
+                gsap.set(horizontalTrack, { xPercent: wrapperTranslateX });
 
                 if (pinnedClone) {
                   gsap.set(pinnedClone, {
                     xPercent: -200 * horizontalProgress,
                   });
                 }
-              } else if (progress > 0.95) {
-                if (flipAnimation) {
-                  flipAnimation.progress(1);
-                }
 
-                gsap.set(horizontalTrack, {
-                  xPercent: -66.67,
-                });
+                return;
+              }
 
-                if (pinnedClone) {
-                  gsap.set(pinnedClone, {
-                    xPercent: -200,
-                  });
-                }
+              flipAnimation?.progress(1);
+              gsap.set(horizontalTrack, { xPercent: -66.67 });
+
+              if (pinnedClone) {
+                gsap.set(pinnedClone, { xPercent: -200 });
               }
             },
           });
@@ -290,18 +265,12 @@ export default function HorizontalScrollPage() {
 
           return () => {
             window.removeEventListener('load', handleLoad);
-
             marqueeTrigger.kill();
-            progressTrigger.kill();
-            flipSetupTrigger.kill();
-            cloneTrigger.kill();
             pinSectionTrigger.kill();
-
-            if (flipAnimation) {
-              flipAnimation.kill();
-              flipAnimation = null;
-            }
-
+            cloneTrigger.kill();
+            flipSetupTrigger.kill();
+            progressTrigger.kill();
+            flipAnimation?.kill();
             removePinnedClone();
             resetStaticState();
             ScrollTrigger.clearScrollMemory?.();
@@ -343,7 +312,7 @@ export default function HorizontalScrollPage() {
                         src={image.src}
                         alt={image.alt}
                         fill
-                        sizes='(max-width: 1000px) 38vw, 18vw'
+                        sizes='(max-width: 64rem) 38vw, 18vw'
                         className={styles.image}
                       />
                     </div>
@@ -374,7 +343,7 @@ export default function HorizontalScrollPage() {
                       src={slide.src}
                       alt={slide.alt}
                       fill
-                      sizes='(max-width: 1000px) 100vw, 38vw'
+                      sizes='(max-width: 64rem) 100vw, 38vw'
                       className={styles.image}
                     />
                   </div>
