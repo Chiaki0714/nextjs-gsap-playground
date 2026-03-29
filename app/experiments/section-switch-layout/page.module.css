@@ -1,5 +1,3 @@
-/* app/experiments/section-switch-layout/page.module.css */
-
 .wrapper {
   --progress: 0;
 
@@ -215,7 +213,7 @@
   }
 }
 
-@media (max-width: 959px) {
+@media (max-width: 64rem) {
   .wrapper {
     min-height: auto;
     flex-direction: column;
@@ -297,7 +295,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 48rem) {
   .right {
     padding-top: var(--layout-md);
   }
@@ -308,11 +306,17 @@
 
   .textSection {
     gap: var(--space-md);
+    padding-block: var(--layout-sm);
+  }
+
+  .textSection h2 {
+    font-size: var(--font-display-sm);
   }
 
   .textSection p,
   .stepBody,
   .stepListBullets {
-    max-width: none;
+    font-size: var(--font-body-md);
+    line-height: var(--leading-relaxed);
   }
 }

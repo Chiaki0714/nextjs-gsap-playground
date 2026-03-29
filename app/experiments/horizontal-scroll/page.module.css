@@ -167,7 +167,7 @@
   overflow: hidden;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 64rem) {
   .heroTitle,
   .outroTitle {
     width: 100%;
@@ -219,9 +219,14 @@
     height: auto;
     aspect-ratio: 4 / 3;
   }
+
+  .outro {
+    border-top: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+    padding-top: var(--layout-lg);
+  }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 48rem) {
   .hero,
   .outro {
     padding: var(--layout-md) var(--layout-sm);

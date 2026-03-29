@@ -109,7 +109,7 @@
   color: var(--reveal-foreground);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 64rem) {
   .banner {
     height: auto;
     padding: var(--layout-lg) var(--layout-sm);
@@ -176,7 +176,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 48rem) {
   .banner {
     padding: var(--layout-md) var(--layout-sm);
     gap: var(--layout-sm);

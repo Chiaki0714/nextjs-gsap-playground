@@ -347,7 +347,7 @@
   overflow: hidden;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 75rem) {
   .layeredBrief {
     width: min(32%, 360px);
   }
@@ -369,7 +369,7 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 64rem) {
   .heroCopy {
     padding: var(--layout-sm);
   }
@@ -383,7 +383,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 48rem) {
   .heroTitle,
   .bannerTitle {
     font-size: clamp(36px, 12vw, 56px);
@@ -445,6 +445,8 @@
 
   .splitCopy {
     min-height: 44vh;
+    min-height: 44svh;
+    min-height: 44dvh;
     padding: var(--layout-md) var(--layout-sm) var(--layout-sm);
   }
 
@@ -454,6 +456,8 @@
 
   .splitMediaWrap {
     min-height: 44vh;
+    min-height: 44svh;
+    min-height: 44dvh;
   }
 
   .splitMediaCol .media {
@@ -463,11 +467,19 @@
     left: 0;
   }
 
+  .banner {
+    min-height: auto;
+    padding: var(--layout-xl) var(--layout-sm);
+  }
+
+  .bannerBody {
+    margin-top: var(--space-lg);
+  }
+
   .footer {
     flex-direction: column;
-    min-height: auto;
-    gap: var(--layout-md);
-    padding: var(--layout-lg) var(--layout-sm);
+    gap: var(--layout-sm);
+    padding: var(--layout-sm);
   }
 
   .footer .col:first-child,
@@ -480,6 +492,8 @@
   }
 
   .footerMedia {
-    min-height: 44vh;
+    min-height: 40vh;
+    min-height: 40svh;
+    min-height: 40dvh;
   }
 }
