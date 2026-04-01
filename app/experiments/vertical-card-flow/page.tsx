@@ -14,6 +14,16 @@ gsap.registerPlugin(ScrollTrigger);
 const PIN_DWELL = 1.05;
 const LEAD_RATIO = 0.12;
 const END_LEAD_MULTIPLIER = 2;
+const ACTIVE_DOT_EPSILON = 1e-4;
+
+function clampStepIndex(index: number, maxIndex: number) {
+  return Math.max(0, Math.min(maxIndex, index));
+}
+
+function getIndicatorTopPercent(index: number, total: number) {
+  if (total <= 1) return 0;
+  return (index / (total - 1)) * 100;
+}
 
 export default function FlowVerticalStepsPage() {
   const rootRef = useRef<HTMLElement>(null);
@@ -21,6 +31,7 @@ export default function FlowVerticalStepsPage() {
   const stepsInnerRef = useRef<HTMLDivElement>(null);
 
   const stepsCount = STEPS.length;
+  const lastStepIndex = Math.max(0, stepsCount - 1);
 
   useGSAP(
     () => {
@@ -41,12 +52,13 @@ export default function FlowVerticalStepsPage() {
         gsap.set(stepsInner, { clearProps: 'transform,willChange' });
         root.style.setProperty('--progress', '0');
 
-        markEls.forEach((el, index) => {
+        markEls.forEach((markEl, index) => {
           if (index === 0) {
-            el.setAttribute('data-active', 'true');
-          } else {
-            el.removeAttribute('data-active');
+            markEl.setAttribute('data-active', 'true');
+            return;
           }
+
+          markEl.removeAttribute('data-active');
         });
       };
 
@@ -68,7 +80,7 @@ export default function FlowVerticalStepsPage() {
           let activeDotIndex = 0;
 
           const setActiveDot = (index: number) => {
-            const nextIndex = Math.max(0, Math.min(markEls.length - 1, index));
+            const nextIndex = clampStepIndex(index, lastStepIndex);
             if (nextIndex === activeDotIndex) return;
 
             markEls[activeDotIndex]?.removeAttribute('data-active');
@@ -90,28 +102,43 @@ export default function FlowVerticalStepsPage() {
           };
 
           const updateTweenTarget = () => {
-            const scrollable = getScrollableDistance();
+            const scrollableDistance = getScrollableDistance();
 
             gsap.set(stepsInner, { willChange: 'transform' });
-            tween.vars.y = -scrollable;
+            tween.vars.y = -scrollableDistance;
             tween.invalidate();
 
-            return scrollable;
+            return scrollableDistance;
           };
 
-          const computeEnd = () => {
-            const scrollable = updateTweenTarget();
-            const dwell = window.innerHeight * PIN_DWELL * stepsCount;
-            const leadExtra =
+          const getScrollEndDistance = () => {
+            const scrollableDistance = updateTweenTarget();
+            const dwellDistance = window.innerHeight * PIN_DWELL * stepsCount;
+            const leadDistance =
               window.innerHeight * LEAD_RATIO * END_LEAD_MULTIPLIER;
 
-            return scrollable + dwell + leadExtra;
+            return scrollableDistance + dwellDistance + leadDistance;
           };
 
-          const st = ScrollTrigger.create({
+          const getMotionProgress = (progress: number) => {
+            const motionRange = Math.max(0.0001, 1 - LEAD_RATIO * 2);
+
+            return clamp01((progress - LEAD_RATIO) / motionRange);
+          };
+
+          const getActiveDotIndex = (motionProgress: number) => {
+            const segments = Math.max(1, lastStepIndex);
+
+            return Math.min(
+              lastStepIndex,
+              Math.floor(motionProgress * segments + ACTIVE_DOT_EPSILON),
+            );
+          };
+
+          const scrollTrigger = ScrollTrigger.create({
             trigger: root,
             start: 'top top',
-            end: () => `+=${computeEnd()}`,
+            end: () => `+=${getScrollEndDistance()}`,
             pin: true,
             pinSpacing: true,
             pinType: 'transform',
@@ -123,32 +150,21 @@ export default function FlowVerticalStepsPage() {
               updateTweenTarget();
             },
             onUpdate: self => {
-              const motionRange = Math.max(0.0001, 1 - LEAD_RATIO * 2);
-              const motionProgress = clamp01(
-                (self.progress - LEAD_RATIO) / motionRange,
-              );
+              const motionProgress = getMotionProgress(self.progress);
 
               root.style.setProperty('--progress', String(motionProgress));
               tween.progress(motionProgress);
-
-              const segments = Math.max(1, stepsCount - 1);
-              const epsilon = 1e-4;
-              const nextActiveDot = Math.min(
-                stepsCount - 1,
-                Math.floor(motionProgress * segments + epsilon),
-              );
-
-              setActiveDot(nextActiveDot);
+              setActiveDot(getActiveDotIndex(motionProgress));
             },
           });
 
-          const rafId = requestAnimationFrame(() => {
+          const refreshFrameId = requestAnimationFrame(() => {
             ScrollTrigger.refresh();
           });
 
           return () => {
-            cancelAnimationFrame(rafId);
-            st.kill();
+            cancelAnimationFrame(refreshFrameId);
+            scrollTrigger.kill();
             tween.kill();
             resetStaticState();
           };
@@ -175,25 +191,22 @@ export default function FlowVerticalStepsPage() {
             <div className={styles.indicatorFill} />
 
             <div className={styles.indicatorMarks}>
-              {STEPS.map((step, index) => {
-                const topPct =
-                  stepsCount <= 1 ? 0 : (index / (stepsCount - 1)) * 100;
-
-                return (
-                  <div
-                    key={step.id}
-                    className={styles.indicatorMark}
-                    data-index={index}
-                    data-active={index === 0 ? 'true' : undefined}
-                    style={{ top: `${topPct}%` }}
-                  >
-                    <span className={styles.indicatorNo}>
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span className={styles.indicatorDot} />
-                  </div>
-                );
-              })}
+              {STEPS.map((step, index) => (
+                <div
+                  key={step.id}
+                  className={styles.indicatorMark}
+                  data-index={index}
+                  data-active={index === 0 ? 'true' : undefined}
+                  style={{
+                    top: `${getIndicatorTopPercent(index, stepsCount)}%`,
+                  }}
+                >
+                  <span className={styles.indicatorNo}>
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className={styles.indicatorDot} />
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -204,12 +217,12 @@ export default function FlowVerticalStepsPage() {
           <div ref={stepsInnerRef} className={styles.stepsInner}>
             {STEPS.map((step, index) => (
               <article key={step.id} className={styles.card}>
-                <header className={styles.cardHead}>
+                <div className={styles.cardHead}>
                   <p className={styles.cardNo}>
                     {String(index + 1).padStart(2, '0')}
                   </p>
                   <h2 className={styles.cardTitle}>{step.title}</h2>
-                </header>
+                </div>
 
                 <div className={styles.cardBody}>{step.body}</div>
               </article>

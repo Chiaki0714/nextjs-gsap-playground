@@ -1,18 +1,24 @@
 .wrapper {
   --progress: 0;
 
-  --flow-surface: color-mix(
-    in srgb,
-    var(--background) 96%,
-    var(--foreground) 4%
+  --flow-left-min: 14rem;
+  --flow-left-max: 17rem;
+  --flow-indicator-width: 5rem;
+  --flow-indicator-height-offset: 15rem;
+  --flow-indicator-height-max: 35rem;
+  --flow-indicator-line-x: 2.5rem;
+  --flow-indicator-no-width: 1.875rem;
+  --flow-dot-size: 0.5rem;
+  --flow-card-head-width: 14rem;
+
+  --flow-dot-shift-x: calc(
+    var(--flow-indicator-line-x) -
+      (var(--flow-indicator-no-width) + var(--space-xs)) -
+      (var(--flow-dot-size) / 2)
   );
-  --flow-panel: color-mix(in srgb, var(--background) 92%, var(--foreground) 8%);
-  --flow-border: color-mix(in srgb, var(--foreground) 10%, transparent);
-  --flow-border-strong: color-mix(in srgb, var(--foreground) 18%, transparent);
-  --flow-rail: color-mix(in srgb, var(--foreground) 14%, transparent);
-  --flow-rail-active: color-mix(in srgb, var(--foreground) 72%, transparent);
-  --flow-dot: color-mix(in srgb, var(--foreground) 18%, transparent);
-  --flow-dot-active: color-mix(in srgb, var(--foreground) 92%, transparent);
+
+  /* before / after の var(--background) とは変える */
+  --flow-surface: var(--surface-1);
 
   width: 100%;
   height: 100vh;
@@ -22,7 +28,9 @@
   min-height: 100svh;
   min-height: 100dvh;
   display: grid;
-  grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+  grid-template-columns:
+    minmax(var(--flow-left-min), var(--flow-left-max))
+    minmax(0, 1fr);
   background: var(--flow-surface);
   color: var(--text-strong);
   overflow: hidden;
@@ -32,7 +40,7 @@
   min-width: 0;
   height: 100%;
   padding: var(--layout-lg);
-  border-right: 1px solid var(--flow-border);
+  border-right: 1px solid var(--border-1);
   display: grid;
   grid-template-rows: auto 1fr;
   gap: var(--layout-sm);
@@ -62,15 +70,18 @@
 
 .indicator {
   position: relative;
-  width: 5rem;
-  height: min(35rem, calc(100dvh - 15rem));
+  width: var(--flow-indicator-width);
+  height: min(
+    var(--flow-indicator-height-max),
+    calc(100dvh - var(--flow-indicator-height-offset))
+  );
   pointer-events: none;
 }
 
 .indicatorTrack,
 .indicatorFill {
   position: absolute;
-  left: 2.5rem;
+  left: var(--flow-indicator-line-x);
   top: 0;
   bottom: 0;
   width: 1px;
@@ -78,11 +89,11 @@
 }
 
 .indicatorTrack {
-  background: var(--flow-rail);
+  background: var(--ui-line-soft);
 }
 
 .indicatorFill {
-  background: var(--flow-rail-active);
+  background: var(--ui-line-strong);
   transform-origin: top center;
   transform: scaleY(var(--progress));
   will-change: transform;
@@ -99,7 +110,7 @@
   width: 100%;
   transform: translateY(-50%);
   display: grid;
-  grid-template-columns: 1.875rem 1fr;
+  grid-template-columns: var(--flow-indicator-no-width) 1fr;
   gap: var(--space-xs);
   align-items: center;
 }
@@ -113,26 +124,24 @@
 }
 
 .indicatorDot {
-  width: 0.5rem;
-  height: 0.5rem;
+  width: var(--flow-dot-size);
+  height: var(--flow-dot-size);
   border-radius: var(--radius-pill);
-  background: var(--flow-dot);
-  transform: translateX(calc(2.5rem - (1.875rem + var(--space-xs)) - 0.25rem));
+  background: var(--ui-dot-soft);
+  transform: translateX(var(--flow-dot-shift-x));
   transition:
     transform var(--duration-ui) ease,
     background-color var(--duration-ui) ease;
 }
 
 .indicatorMark[data-active='true'] .indicatorDot {
-  background: var(--flow-dot-active);
-  transform: translateX(calc(2.5rem - (1.875rem + var(--space-xs)) - 0.25rem))
-    scale(1.25);
+  background: var(--ui-dot-strong);
+  transform: translateX(var(--flow-dot-shift-x)) scale(1.25);
 }
 
 .right {
   min-width: 0;
   height: 100%;
-  padding: 0;
   overflow: hidden;
 }
 
@@ -147,19 +156,18 @@
   display: grid;
   gap: var(--space-lg);
   padding-block: var(--layout-lg);
-  padding-inline: clamp(24px, 3vw, 48px);
+  padding-inline: clamp(var(--space-xl), 3vw, var(--space-4xl));
   will-change: transform;
 }
 
 .card {
-  position: relative;
   display: grid;
-  grid-template-columns: 14rem minmax(0, 1fr);
+  grid-template-columns: var(--flow-card-head-width) minmax(0, 1fr);
   gap: var(--space-2xl);
   padding: var(--space-2xl) var(--space-3xl);
-  border: 1px solid var(--flow-border);
+  border: 1px solid var(--border-1);
   border-radius: var(--radius-lg);
-  background: var(--flow-panel);
+  background: var(--background);
 }
 
 .cardHead {
@@ -210,7 +218,7 @@
 .note {
   margin: var(--space-xs) 0 0;
   padding-left: var(--space-sm);
-  border-left: 2px solid var(--flow-border-strong);
+  border-left: 2px solid var(--border-2);
   font-size: var(--font-body-sm);
   line-height: var(--leading-normal);
   color: var(--text-strong);
@@ -233,8 +241,8 @@
   .left {
     padding: var(--layout-md) var(--gutter);
     border-right: 0;
-    border-bottom: 1px solid var(--flow-border);
-    gap: var(--layout-sm);
+    display: block;
+    gap: 0;
   }
 
   .indicatorWrap {
@@ -265,12 +273,15 @@
 }
 
 @media (max-width: 48rem) {
-  .card {
-    padding: var(--space-xl);
+  .left {
+    padding-block: var(--layout-sm);
   }
 
-  .stepBody,
-  .stepListBullets {
-    font-size: var(--font-body-md);
+  .stepsInner {
+    gap: var(--space-lg);
+  }
+
+  .card {
+    padding: var(--space-xl);
   }
 }
