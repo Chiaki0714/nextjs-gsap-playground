@@ -948,8 +948,8 @@ Home の幅は **page.module.css 側の `.container` で完結** させる。
 カードグリッド基準:
 
 - SP: 1 列
-- `64rem` 以上: 2 列
-- `75rem` 以上: 3 列
+- `48rem` 以上: 2 列
+- `64rem` 以上: 3 列
 
 ### Empty State
 

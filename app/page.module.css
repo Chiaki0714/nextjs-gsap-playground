@@ -136,13 +136,13 @@
   }
 
   .tag:not(.tagActive):hover {
-    transform: translateY(-1px);
+    transform: translateY(var(--motion-lift-xs));
   }
 }
 
 @media (hover: none) {
   .tag:active {
-    transform: scale(0.98);
+    transform: scale(var(--motion-press));
     border-color: var(--border-2);
     background: var(--surface-2);
     color: var(--foreground);

@@ -118,6 +118,12 @@
   --duration-ui: 0.24s;
   --duration-emphasis: 0.55s;
 
+  /* ===== Shared interaction ===== */
+  --motion-lift-xs: -1px;
+  --motion-lift-sm: -6px;
+  --motion-press: 0.985;
+  --motion-fade-press: 0.88;
+
   /* ===== Blur ===== */
   --blur-frosted: 10px;
 }

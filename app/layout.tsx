@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import './globals.css';
 import LenisProvider from './providers/LenisProvider';
 import { Inter, Noto_Sans_JP } from 'next/font/google';
@@ -13,6 +14,14 @@ const notoSansJp = Noto_Sans_JP({
   variable: '--font-noto-jp',
   display: 'swap',
 });
+
+export const metadata: Metadata = {
+  title: {
+    default: 'GSAP Playground',
+    template: 'Chiakis | GSAP Playground',
+  },
+  description: 'Scroll-driven motion experiments built with Next.js + GSAP',
+};
 
 export default function RootLayout({
   children,

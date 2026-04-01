@@ -1,27 +1,47 @@
 .wrapper {
   --progress: 0;
+
+  --flow-surface: color-mix(
+    in srgb,
+    var(--background) 96%,
+    var(--foreground) 4%
+  );
+  --flow-panel: color-mix(in srgb, var(--background) 92%, var(--foreground) 8%);
+  --flow-border: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --flow-border-strong: color-mix(in srgb, var(--foreground) 18%, transparent);
+  --flow-rail: color-mix(in srgb, var(--foreground) 14%, transparent);
+  --flow-rail-active: color-mix(in srgb, var(--foreground) 72%, transparent);
+  --flow-dot: color-mix(in srgb, var(--foreground) 18%, transparent);
+  --flow-dot-active: color-mix(in srgb, var(--foreground) 92%, transparent);
+
+  width: 100%;
   height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
   min-height: 100svh;
-  display: flex;
-  background: var(--background);
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+  background: var(--flow-surface);
   color: var(--text-strong);
-  will-change: transform;
-  transform: translateZ(0);
+  overflow: hidden;
 }
 
 .left {
-  width: 20%;
-  min-width: 220px;
-  height: 100vh;
-  min-height: 100svh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: var(--layout-lg) clamp(18px, 3vw, 44px);
+  min-width: 0;
+  height: 100%;
+  padding: var(--layout-lg);
+  border-right: 1px solid var(--flow-border);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--layout-sm);
 }
 
 .leftHeader {
-  flex: 0 0 auto;
+  display: grid;
+  gap: var(--space-xs);
+  align-content: start;
 }
 
 .sectionLabel {
@@ -34,7 +54,6 @@
 }
 
 .indicatorWrap {
-  flex: 1 1 auto;
   min-height: 0;
   display: flex;
   align-items: center;
@@ -43,27 +62,27 @@
 
 .indicator {
   position: relative;
-  height: min(560px, calc(100vh - 220px));
-  width: 92px;
+  width: 5rem;
+  height: min(35rem, calc(100dvh - 15rem));
   pointer-events: none;
 }
 
 .indicatorTrack,
 .indicatorFill {
   position: absolute;
-  left: 58px;
+  left: 2.5rem;
   top: 0;
   bottom: 0;
-  width: 2px;
-  border-radius: 999px;
+  width: 1px;
+  border-radius: var(--radius-pill);
 }
 
 .indicatorTrack {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--flow-rail);
 }
 
 .indicatorFill {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--flow-rail-active);
   transform-origin: top center;
   transform: scaleY(var(--progress));
   will-change: transform;
@@ -77,11 +96,11 @@
 .indicatorMark {
   position: absolute;
   left: 0;
-  transform: translateY(-50%);
   width: 100%;
+  transform: translateY(-50%);
   display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: var(--space-sm);
+  grid-template-columns: 1.875rem 1fr;
+  gap: var(--space-xs);
   align-items: center;
 }
 
@@ -94,60 +113,63 @@
 }
 
 .indicatorDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.26);
-  transform: translateX(calc(58px - (42px + var(--space-sm)) - 4px));
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--flow-dot);
+  transform: translateX(calc(2.5rem - (1.875rem + var(--space-xs)) - 0.25rem));
   transition:
-    transform 0.2s ease,
-    background 0.2s ease;
+    transform var(--duration-ui) ease,
+    background-color var(--duration-ui) ease;
 }
 
 .indicatorMark[data-active='true'] .indicatorDot {
-  background: rgba(255, 255, 255, 0.95);
-  transform: translateX(calc(58px - (42px + var(--space-sm)) - 4px)) scale(1.25);
+  background: var(--flow-dot-active);
+  transform: translateX(calc(2.5rem - (1.875rem + var(--space-xs)) - 0.25rem))
+    scale(1.25);
 }
 
 .right {
-  width: 80%;
-  height: 100vh;
-  min-height: 100svh;
-  background: transparent;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
   overflow: hidden;
-  padding: var(--layout-lg) clamp(18px, 3vw, 44px);
 }
 
 .stage {
   height: 100%;
+  min-height: 0;
   overflow: hidden;
-  padding-block: var(--space-md);
 }
 
 .stepsInner {
+  box-sizing: border-box;
   display: grid;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
+  padding-block: var(--layout-lg);
+  padding-inline: clamp(24px, 3vw, 48px);
+  will-change: transform;
 }
 
 .card {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 14rem minmax(0, 1fr);
+  gap: var(--space-2xl);
   padding: var(--space-2xl) var(--space-3xl);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--flow-border);
+  border-radius: var(--radius-lg);
+  background: var(--flow-panel);
 }
 
 .cardHead {
-  display: flex;
-  align-items: center;
-  width: 240px;
+  display: grid;
+  gap: var(--space-sm);
+  align-content: start;
 }
 
 .cardNo {
-  position: absolute;
-  top: var(--space-sm);
-  left: var(--space-md);
+  margin: 0;
   font-size: var(--font-label);
   line-height: 1;
   letter-spacing: var(--tracking-wide);
@@ -160,56 +182,95 @@
   line-height: var(--leading-snug);
   letter-spacing: var(--tracking-sm);
   font-weight: var(--weight-medium);
+  color: var(--foreground);
 }
 
 .cardBody {
   display: grid;
   gap: var(--space-sm);
+  align-content: start;
 }
 
 .stepBody,
 .stepListBullets {
   margin: 0;
-  color: var(--text-muted);
-  line-height: 1.75;
   font-size: var(--font-body-md);
+  line-height: 1.75;
+  color: var(--text-muted);
 }
 
-.stepListBullets li {
-  margin-top: 6px;
+.stepListBullets {
+  padding-left: 1.25rem;
+}
+
+.stepListBullets li + li {
+  margin-top: 0.375rem;
 }
 
 .note {
   margin: var(--space-xs) 0 0;
   padding-left: var(--space-sm);
-  border-left: 2px solid rgba(255, 255, 255, 0.35);
+  border-left: 2px solid var(--flow-border-strong);
   font-size: var(--font-body-sm);
   line-height: var(--leading-normal);
   color: var(--text-strong);
 }
 
-@media (max-width: 980px) {
+@media (max-width: 64rem) {
   .wrapper {
     height: auto;
-    flex-direction: column;
+    min-height: 0;
+    display: block;
+    overflow: visible;
   }
 
   .left,
   .right {
-    width: 100%;
     height: auto;
-    min-height: auto;
+    min-height: 0;
+  }
+
+  .left {
+    padding: var(--layout-md) var(--gutter);
+    border-right: 0;
+    border-bottom: 1px solid var(--flow-border);
+    gap: var(--layout-sm);
   }
 
   .indicatorWrap {
-    align-items: flex-start;
+    display: none;
   }
 
-  .stage {
+  .right {
     overflow: visible;
   }
 
-  .indicator {
-    height: 240px;
+  .stage {
+    height: auto;
+    overflow: visible;
+  }
+
+  .stepsInner {
+    gap: var(--layout-sm);
+    padding-block: var(--layout-sm) var(--layout-md);
+    padding-inline: var(--gutter);
+    transform: none !important;
+  }
+
+  .card {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    padding: var(--space-2xl);
+  }
+}
+
+@media (max-width: 48rem) {
+  .card {
+    padding: var(--space-xl);
+  }
+
+  .stepBody,
+  .stepListBullets {
+    font-size: var(--font-body-md);
   }
 }

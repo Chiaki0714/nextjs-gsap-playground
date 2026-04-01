@@ -44,7 +44,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .card:hover .inner {
-    transform: translateY(-6px);
+    transform: translateY(var(--motion-lift-sm));
     border-color: var(--border-3);
     background-color: var(--surface-2);
   }
@@ -52,7 +52,7 @@
 
 @media (hover: none) {
   .card:active .inner {
-    transform: scale(0.985);
+    transform: scale(var(--motion-press));
     border-color: var(--border-2);
     background-color: var(--surface-2);
   }

@@ -1,14 +1,15 @@
-// app/experiments/flow-vertical-steps/steps.tsx
 import type { ReactNode } from 'react';
 import styles from './page.module.css';
 
 export type Step = {
+  id: string;
   title: string;
   body: ReactNode;
 };
 
 export const STEPS: Step[] = [
   {
+    id: 'contact',
     title: 'お問い合わせ',
     body: (
       <>
@@ -22,11 +23,13 @@ export const STEPS: Step[] = [
     ),
   },
   {
+    id: 'hearing',
     title: 'ヒアリング',
     body: (
       <>
         <p className={styles.stepBody}>
-          オンライン打ち合わせ（Google Meet等）で、目的・ターゲット・課題を確認します。
+          オンライン打ち合わせ（Google
+          Meet等）で、目的・ターゲット・課題を確認します。
         </p>
         <ul className={styles.stepListBullets}>
           <li>伝えたいこと／届けたい相手</li>
@@ -37,6 +40,7 @@ export const STEPS: Step[] = [
     ),
   },
   {
+    id: 'direction',
     title: '分析と方向性の設計',
     body: (
       <>
@@ -51,6 +55,7 @@ export const STEPS: Step[] = [
     ),
   },
   {
+    id: 'design',
     title: 'デザイン設計',
     body: (
       <>
@@ -58,7 +63,8 @@ export const STEPS: Step[] = [
           ムードボードでトーンを揃え、スタイルガイドでデザインルール（文字・余白・色）を定義します。
         </p>
         <p className={styles.stepBody}>
-          ワイヤーフレーム → ビジュアルデザインの順に進め、完成イメージを具体化します。
+          ワイヤーフレーム →
+          ビジュアルデザインの順に進め、完成イメージを具体化します。
         </p>
         <p className={styles.note}>
           お客様確認：ワイヤー／TOP／全ページデザイン
@@ -67,6 +73,7 @@ export const STEPS: Step[] = [
     ),
   },
   {
+    id: 'build',
     title: '実装',
     body: (
       <>
@@ -78,13 +85,12 @@ export const STEPS: Step[] = [
           <li>表示速度・安定性の最適化</li>
           <li>必要に応じてCMS導入（お知らせ／ブログ等）</li>
         </ul>
-        <p className={styles.note}>
-          お客様確認：テスト環境（または本番URL）
-        </p>
+        <p className={styles.note}>お客様確認：テスト環境（または本番URL）</p>
       </>
     ),
   },
   {
+    id: 'delivery',
     title: '最終確認・納品',
     body: (
       <>
