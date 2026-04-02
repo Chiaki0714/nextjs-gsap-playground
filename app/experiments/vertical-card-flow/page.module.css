@@ -17,9 +17,6 @@
       (var(--flow-dot-size) / 2)
   );
 
-  /* before / after の var(--background) とは変える */
-  --flow-surface: var(--surface-1);
-
   width: 100%;
   height: 100vh;
   height: 100svh;
@@ -31,7 +28,7 @@
   grid-template-columns:
     minmax(var(--flow-left-min), var(--flow-left-max))
     minmax(0, 1fr);
-  background: var(--flow-surface);
+  background: var(--surface-1);
   color: var(--text-strong);
   overflow: hidden;
 }

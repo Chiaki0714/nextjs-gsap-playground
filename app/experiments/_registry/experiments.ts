@@ -53,6 +53,13 @@ export const EXPERIMENTS: Experiment[] = [
     href: '/experiments/image-reveal-layout',
     tags: ['ScrollTrigger', 'Pin', 'Reveal', 'Layout'],
   },
+  {
+    title: 'Text Line Reveal',
+    description:
+      'Full-height editorial layout with scroll-triggered line reveal copy and static media sections',
+    href: '/experiments/text-line-reveal',
+    tags: ['ScrollTrigger', 'Reveal', 'Layout', 'Intro'],
+  },
 ];
 
 export const ALL_TAGS: Tag[] = [
