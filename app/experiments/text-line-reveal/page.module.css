@@ -40,8 +40,8 @@
 .about,
 .philosophy {
   min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
+  /* min-height: 100svh;
+  min-height: 100dvh; */
 }
 
 .hero {
@@ -168,14 +168,13 @@
 }
 
 @media (max-width: 64rem) {
-  .hero,
   .about,
   .philosophy {
     min-height: 0;
   }
 
   .hero {
-    align-items: flex-end;
+    min-height: 50vh;
     padding-block: var(--layout-xl) var(--layout-lg);
   }
 
