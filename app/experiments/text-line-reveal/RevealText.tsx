@@ -18,6 +18,8 @@ type RevealTextProps = {
   className?: string;
 };
 
+const MASK_DESCENDER_PADDING = '0.1em';
+
 export default function RevealText({
   children,
   animateOnScroll = true,
@@ -31,86 +33,117 @@ export default function RevealText({
       const container = containerRef.current;
       if (!container) return;
 
-      const prefersReducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-      ).matches;
+      let cleanup = () => {};
+      let cancelled = false;
 
-      const childElements = Array.from(container.children).filter(
-        (node): node is HTMLElement => node instanceof HTMLElement,
-      );
+      const setup = () => {
+        if (cancelled) return;
 
-      if (!childElements.length) return;
+        const prefersReducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches;
 
-      const splits: SplitText[] = [];
-      const lines: HTMLElement[] = [];
+        const childElements = Array.from(container.children).filter(
+          (node): node is HTMLElement => node instanceof HTMLElement,
+        );
 
-      childElements.forEach(element => {
-        const split = SplitText.create(element, {
-          type: 'lines',
-          mask: 'lines',
-          linesClass: 'line++',
-          lineThreshold: 0.1,
+        if (!childElements.length) return;
+
+        const splits: SplitText[] = [];
+        const lines: HTMLElement[] = [];
+        const masks: HTMLElement[] = [];
+
+        childElements.forEach(element => {
+          const split = SplitText.create(element, {
+            type: 'lines',
+            mask: 'lines',
+            linesClass: 'line++',
+            lineThreshold: 0.1,
+          });
+
+          splits.push(split);
+          lines.push(...(split.lines as HTMLElement[]));
+
+          if (split.masks?.length) {
+            masks.push(...(split.masks as HTMLElement[]));
+          }
+
+          const textIndent = window.getComputedStyle(element).textIndent;
+          if (textIndent && textIndent !== '0px' && split.lines.length > 0) {
+            split.lines[0].style.paddingLeft = textIndent;
+            element.style.textIndent = '0';
+          }
         });
 
-        splits.push(split);
-
-        const computedStyle = window.getComputedStyle(element);
-        const textIndent = computedStyle.textIndent;
-
-        if (textIndent && textIndent !== '0px' && split.lines.length > 0) {
-          split.lines[0].style.paddingLeft = textIndent;
-          element.style.textIndent = '0';
+        if (!lines.length) {
+          cleanup = () => {
+            splits.forEach(split => split.revert());
+          };
+          return;
         }
 
-        lines.push(...(split.lines as HTMLElement[]));
-      });
+        if (masks.length) {
+          gsap.set(masks, {
+            overflowX: 'visible',
+            overflowY: 'clip',
+            paddingBottom: MASK_DESCENDER_PADDING,
+            marginBottom: `-${MASK_DESCENDER_PADDING}`,
+          });
+        }
 
-      if (!lines.length) {
-        return () => {
+        gsap.set(lines, { y: prefersReducedMotion ? '0%' : '100%' });
+
+        if (prefersReducedMotion) {
+          cleanup = () => {
+            splits.forEach(split => split.revert());
+          };
+          return;
+        }
+
+        const animationProps = {
+          y: '0%',
+          duration: 1,
+          stagger: 0.1,
+          ease: 'power4.out',
+          delay,
+        };
+
+        let tween: gsap.core.Tween | null = null;
+        let refreshFrame = 0;
+
+        if (animateOnScroll) {
+          tween = gsap.to(lines, {
+            ...animationProps,
+            scrollTrigger: {
+              trigger: container,
+              start: 'top 75%',
+              once: true,
+            },
+          });
+
+          refreshFrame = requestAnimationFrame(() => {
+            ScrollTrigger.refresh();
+          });
+        } else {
+          tween = gsap.to(lines, animationProps);
+        }
+
+        cleanup = () => {
+          cancelAnimationFrame(refreshFrame);
+          tween?.kill();
           splits.forEach(split => split.revert());
         };
-      }
-
-      gsap.set(lines, { y: prefersReducedMotion ? '0%' : '100%' });
-
-      if (prefersReducedMotion) {
-        return () => {
-          splits.forEach(split => split.revert());
-        };
-      }
-
-      const animationProps = {
-        y: '0%',
-        duration: 1,
-        stagger: 0.1,
-        ease: 'power4.out',
-        delay,
       };
 
-      let tween: gsap.core.Tween | null = null;
-      let refreshFrame = 0;
-
-      if (animateOnScroll) {
-        tween = gsap.to(lines, {
-          ...animationProps,
-          scrollTrigger: {
-            trigger: container,
-            start: 'top 75%',
-            once: true,
-          },
-        });
-
-        refreshFrame = requestAnimationFrame(() => {
-          ScrollTrigger.refresh();
-        });
+      if ('fonts' in document) {
+        document.fonts.ready.then(setup);
       } else {
-        tween = gsap.to(lines, animationProps);
+        setup();
       }
 
       return () => {
-        cancelAnimationFrame(refreshFrame);
-        tween?.kill();
-        splits.forEach(split => split.revert());
+        cancelled = true;
+        cleanup();
       };
     },
     { scope: containerRef, dependencies: [animateOnScroll, delay] },

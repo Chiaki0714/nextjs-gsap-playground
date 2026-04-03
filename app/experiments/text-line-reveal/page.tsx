@@ -5,29 +5,8 @@ import RevealText from './RevealText';
 import { CONTENT_SECTIONS, HERO_IMAGE, PORTRAIT_IMAGE } from './content';
 
 export default function TextLineRevealPage() {
-  const footerLinks = ['Twitter', 'LinkedIn', 'Instagram', 'Awwwards', 'Email'];
-
   return (
     <section className={styles.wrapper} aria-label='Text line reveal layout'>
-      <nav className={styles.nav} aria-label='Section navigation'>
-        <div className={styles.navGroup}>
-          <div className={styles.navBlock}>
-            <span className={styles.navLabel}>Greyloom</span>
-          </div>
-
-          <div className={styles.navBlock}>
-            <span className={styles.navLabel}>Home</span>
-            <span className={styles.navLabel}>Projects</span>
-            <span className={styles.navLabel}>About</span>
-            <span className={styles.navLabel}>Lab</span>
-          </div>
-        </div>
-
-        <div className={styles.navGroup}>
-          <span className={styles.navLabel}>Let&apos;s talk</span>
-        </div>
-      </nav>
-
       <section className={styles.hero}>
         <div className={styles.heroMedia} aria-hidden='true'>
           <Image
@@ -40,23 +19,23 @@ export default function TextLineRevealPage() {
           />
         </div>
 
-        <header className={styles.heroHeader}>
+        <div className={styles.heroHeader}>
           <RevealText delay={0.35}>
             <h1 className={styles.displayTitle}>
               We craft identities and experiences for the bold.
             </h1>
           </RevealText>
-        </header>
+        </div>
       </section>
 
-      <section className={styles.intro}>
+      <section className={styles.about}>
         <RevealText>
           <p className={styles.eyebrow}>
             Design &amp; Strategy for the Vision-Driven
           </p>
         </RevealText>
 
-        <div className={styles.introHeader}>
+        <div className={styles.aboutHeader}>
           <RevealText>
             <h2 className={styles.sectionTitle}>
               We partner with founders, innovators, and change-makers to shape
@@ -117,28 +96,6 @@ export default function TextLineRevealPage() {
           </RevealText>
         </div>
       </section>
-
-      <footer className={styles.footer}>
-        <div className={styles.footerColumn}>
-          <div className={styles.footerBlock}>
-            <span className={styles.footerMeta}>Terms &amp; Conditions</span>
-          </div>
-
-          <div className={styles.footerBlock}>
-            <RevealText>
-              {footerLinks.map(label => (
-                <p key={label} className={styles.footerLinkLabel}>
-                  {label}
-                </p>
-              ))}
-            </RevealText>
-          </div>
-        </div>
-
-        <div className={styles.footerColumnSecondary}>
-          <span className={styles.footerMeta}>Copyright Greyloom 2025</span>
-        </div>
-      </footer>
     </section>
   );
 }
