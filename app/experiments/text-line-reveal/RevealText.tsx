@@ -62,15 +62,22 @@ export default function RevealText({
           });
 
           splits.push(split);
-          lines.push(...(split.lines as HTMLElement[]));
 
-          if (split.masks?.length) {
-            masks.push(...(split.masks as HTMLElement[]));
-          }
+          const splitLines = (split.lines ?? []).filter(
+            (line): line is HTMLElement => line instanceof HTMLElement,
+          );
+          const splitMasks = (split.masks ?? []).filter(
+            (mask): mask is HTMLElement => mask instanceof HTMLElement,
+          );
+
+          lines.push(...splitLines);
+          masks.push(...splitMasks);
 
           const textIndent = window.getComputedStyle(element).textIndent;
-          if (textIndent && textIndent !== '0px' && split.lines.length > 0) {
-            split.lines[0].style.paddingLeft = textIndent;
+          const firstLine = splitLines[0];
+
+          if (textIndent && textIndent !== '0px' && firstLine) {
+            firstLine.style.paddingLeft = textIndent;
             element.style.textIndent = '0';
           }
         });
