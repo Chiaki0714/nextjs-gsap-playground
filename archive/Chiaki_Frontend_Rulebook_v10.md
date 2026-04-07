@@ -1,4 +1,4 @@
-# Chiaki Frontend Rulebook v8
+# Chiaki Frontend Rulebook v10
 
 ## はじめに
 
@@ -30,8 +30,6 @@
 4. 横展開しやすいこと
 5. 演出として気持ちよいこと
 
----
-
 ## 2. 基本方針
 
 - 世界標準で見ても実務的な構成を優先する
@@ -42,8 +40,6 @@
 - 演出より UI の安定を優先する
 - 将来のテーマ対応や横展開に備える
 - 一時的な思いつきではなく、再現可能な実装基準に寄せる
-
----
 
 ## 3. 実装判断の共通原則
 
@@ -101,8 +97,6 @@ Client Component は必要な責務がある場合にのみ採用します。
 - ページ全体を慣習的に `use client` にしない
 - GSAP を使う責務は可能な限り局所化する
 
----
-
 ## 2. HTML / レイアウト設計
 
 ### 基本骨格
@@ -145,8 +139,6 @@ Client Component は必要な責務がある場合にのみ採用します。
 - `nav`、`main`、`header`、`section` などの landmark を適切に使う
 - 見出し階層はページ構造に沿って設計する
 
----
-
 ## 3. CSS / Styling 方針
 
 ### CSS Modules 命名ルール
@@ -173,8 +165,6 @@ Client Component は必要な責務がある場合にのみ採用します。
 - 状態は状態として命名する
 - 一時的な見た目差分をクラス名に埋め込まない
 
----
-
 ## 4. Global と Local の責務分離
 
 ### globals.css に置くもの
@@ -200,11 +190,14 @@ Client Component は必要な責務がある場合にのみ採用します。
 ### token / custom property 運用ルール
 
 - global token で足りるなら、そのまま直接使う
-- `--foo: var(--bar);` のような **1:1 の別名 token は作らない**
+- `--foo: var(--bar);` のような **1:1 の別名 token は作らない**  
+  ただし、意味のレイヤーを切り替えるための semantic alias は許容する
 - local custom property は、構造寸法・計算用・同一ファイル内で複数参照する値に限定する
 - 名前を変えるためだけの local token は作らない
 - global token を local custom property に置き換えてコード量を増やさない
 - local custom property を作るときは、「そのファイルでまとめて管理する意味があるか」で判断する
+- 将来の可能性のためだけに token を追加しない
+- 実際に差分が必要になった時点で token を切り出す
 
 ### local custom property を作ってよい例
 
@@ -220,8 +213,6 @@ Client Component は必要な責務がある場合にのみ採用します。
 - `--note-border: var(--border-2);`
 
 これらのように、単に global token を別名にしているだけのものは作らず、最初から global token を直接使う。
-
----
 
 ## 5. Width / Container 設計
 
@@ -254,14 +245,13 @@ Client Component は必要な責務がある場合にのみ採用します。
 }
 ```
 
----
-
 ## 6. Responsive 設計
 
 ### 原則
 
 - **サイズは `clamp()`**
 - **構造は `@media`**
+- **ブレイクポイントは shared value に固定する**
 
 ### `clamp()` を使う対象
 
@@ -302,8 +292,8 @@ Client Component は必要な責務がある場合にのみ採用します。
 - CSS の構造変更はこの shared breakpoint のみで行う
 - 近い値の breakpoint を増やさず、既存値に集約する
 - `640px`、`900px`、`959px`、`1000px` のような近接値は、原則 shared breakpoint に統一する
-
----
+- `max-width` は例外的に「ある幅未満だけを限定的に上書きしたい」場合にのみ使う
+- ただし、GSAP などの動きの有効条件は breakpoint 単体ではなく capability 判定と分離する
 
 ## 6.1 Desktop Motion Gating
 
@@ -395,12 +385,6 @@ mm.add(
 - `ontouchstart` ベースの分岐
 - width のみでの desktop 判定
 
-理由：
-
-- デバイス進化で破綻しやすい
-- 保守コストが高い
-- 実際の操作環境と一致しない
-
 ### 設計意図
 
 - **breakpoint = 見た目の構造**
@@ -408,13 +392,13 @@ mm.add(
 
 この 2 つを分離することで、実装の可読性と再利用性を高める。
 
----
+## 7. Token System
 
-## 7. Spacing Token
+### 7.1 Spacing Token
 
 余白トークンは **layout 系** と **space 系** に分けて管理します。
 
-### `--layout-*`
+#### `--layout-*`
 
 ページやセクションのような大きい単位の余白に使う。
 
@@ -427,7 +411,7 @@ mm.add(
 --layout-2xl: clamp(96px, 12vw, 160px);
 ```
 
-### `--space-*`
+#### `--space-*`
 
 コンポーネント内部や小さい UI 同士の間隔に使う。
 
@@ -444,7 +428,7 @@ mm.add(
 --space-5xl: 64px;
 ```
 
-### 運用ルール
+#### 運用ルール
 
 - `--layout-*` はページやセクション単位の余白に使う
 - `--space-*` はカード、ボタン、ラベルなどコンポーネント内部に使う
@@ -455,17 +439,15 @@ mm.add(
 - 既存 token に十分近い値なら、新しい token は増やさず既存値に寄せる
 - 誤差レベルの差分のために token を細分化しない
 
-### gap / margin ルール
+#### gap / margin ルール
 
 - 同列要素の間隔は `gap`
 - 単発要素の距離は `margin-top`
 - `margin-bottom` は原則使わない
 
----
+### 7.2 Typography Token
 
-## 8. Typography Token
-
-### Font size tokens
+#### Font size tokens
 
 ```css
 --font-display-xl: clamp(40px, 6vw, 64px);
@@ -486,7 +468,7 @@ mm.add(
 --font-decor-sm: clamp(11px, 1vw, 12px);
 ```
 
-### Primitive tokens
+#### Primitive tokens
 
 ```css
 --leading-tight: 1.2;
@@ -505,11 +487,9 @@ mm.add(
 --weight-semibold: 600;
 ```
 
----
+### 7.3 Primitive / Semantic Token
 
-## 9. Primitive / Semantic Token
-
-### Primitive token
+#### Primitive token
 
 ```css
 --radius-sm: 10px;
@@ -523,24 +503,23 @@ mm.add(
 --blur-frosted: 10px;
 ```
 
-### Semantic token
+#### Semantic token
 
 ```css
---control-fg: #111111;
---control-border: rgba(17, 17, 17, 0.14);
---control-bg: rgba(255, 255, 255, 0.78);
---control-bg-hover: rgba(255, 255, 255, 0.9);
+--control-border: rgba(0, 0, 0, 0.12);
+--control-bg: rgba(255, 255, 255, 0.8);
+--control-bg-hover: rgba(255, 255, 255, 0.92);
 
 --panel-border-soft: rgba(0, 0, 0, 0.08);
---panel-bg-soft: rgba(0, 0, 0, 0.03);
+--panel-bg-soft: rgba(0, 0, 0, 0.04);
 
 --ui-line-soft: rgba(0, 0, 0, 0.16);
 --ui-line-strong: rgba(0, 0, 0, 0.32);
---ui-dot-soft: rgba(0, 0, 0, 0.22);
---ui-dot-strong: rgba(0, 0, 0, 0.9);
+--ui-dot-soft: rgba(0, 0, 0, 0.24);
+--ui-dot-strong: rgba(0, 0, 0, 0.72);
 ```
 
-### 運用ルール
+#### 運用ルール
 
 - primitive token は radius / motion / blur などの基本値に使う
 - semantic token は UI の役割単位で使う
@@ -548,9 +527,7 @@ mm.add(
 - 近すぎる値のために token を分割しない
 - 再利用性が弱い値は global token に上げない
 
----
-
-## 10. Color / Theme 設計
+## 8. Color / Theme 設計
 
 ### 基本方針
 
@@ -575,8 +552,8 @@ mm.add(
 --border-2: #d4d4d4;
 --border-3: #b8b8b8;
 
---text-muted: rgba(0, 0, 0, 0.72);
 --text-dim: rgba(0, 0, 0, 0.56);
+--text-muted: rgba(0, 0, 0, 0.72);
 --text-strong: rgba(0, 0, 0, 0.92);
 ```
 
@@ -593,8 +570,8 @@ mm.add(
 --border-2: #333333;
 --border-3: #444444;
 
---text-muted: rgba(255, 255, 255, 0.75);
 --text-dim: rgba(255, 255, 255, 0.6);
+--text-muted: rgba(255, 255, 255, 0.75);
 --text-strong: rgba(255, 255, 255, 0.92);
 ```
 
@@ -604,9 +581,20 @@ mm.add(
 - コンポーネントごとにテーマ分岐を持たせない
 - global color token で十分表現できるのに、ページ専用 color token を増やさない
 
----
+### 運用補足
 
-## 11. Font 運用
+- color token は、まず solid token（background / foreground / surface / border）で組み立てる
+- alpha を使う token は、text / control / panel / ui-line / ui-dot のように役割単位で管理する
+- 透明度の段階は必要最小限にとどめ、近い値のために token を細分化しない
+- 新しい alpha token を追加する前に、既存の近い段階へ統合できないかを確認する
+- light / dark は数値を機械的に対称にせず、知覚上のコントラストが近づくように調整する
+- ページ固有の見た目差分のためだけに global color token を増やさない
+- foreground はテーマの基準色として扱い、text token とは役割を分離する
+- text token は無彩色（black / white）の alpha で構成する
+- foreground と text token を混在させない
+- 視覚的にほぼ同じ値のために token を増やさない
+
+## 9. Font 運用
 
 フォントは `next/font` を基本とします。
 
@@ -615,9 +603,7 @@ mm.add(
 
 理由は、自動最適化、CLS の抑制、実務上の汎用性の高さによる。
 
----
-
-## 12. Accessibility / Interaction
+## 10. Accessibility / Interaction
 
 ### 基本方針
 
@@ -642,9 +628,7 @@ mm.add(
 - 見た目変化が知覚しづらい場合は、無理に scale を入れず border / background の変化だけでもよい
 - 誤差レベルの scale 値違いのために token を増やさない
 
----
-
-## 13. Viewport / Motion / Performance
+## 11. Viewport / Motion / Performance
 
 ### viewport 高さ
 
@@ -683,8 +667,6 @@ GSAP の実験ページを増やしながら、後から見返しても分かり
 
 このプロジェクトは単なる学習用サンプル置き場ではなく、今後の自分の実装基準を整理し、実案件へ横展開するための基準プロジェクトとして扱います。
 
----
-
 ## 2. ディレクトリ運用
 
 ### app 配下
@@ -716,8 +698,6 @@ archive/
 - `app` の中 = 現在見せるもの
 - `archive` の中 = 保管用
 - 完全に不要になったものは削除し、必要に応じて Git 履歴で追う
-
----
 
 ## 3. 命名ルール
 
@@ -753,8 +733,6 @@ Home で認識しやすいよう、タイトルも内容依存を避ける。
 - `Pinned content layout with state-based section switching and progress indicator`
 - `Pinned card layout with vertical progress sync and scrubbed inner flow`
 - `Full-bleed, split, and inset media layouts with scrubbed image parallax`
-
----
 
 ## 4. Registry / Data 配置
 
@@ -793,8 +771,6 @@ app/experiments/section-switch-layout/
 - 画像だけを切り出す場合は `images.ts`
 - セクション全体データなら `sections.ts`
 
----
-
 ## 5. experiments ページの基本構造
 
 experiments の子ページでは、最外層を `section.wrapper` に統一する。
@@ -807,8 +783,6 @@ experiments の子ページでは、最外層を `section.wrapper` に統一す�
 
 Home や layout 側の主要領域には `main` を使って構わない。  
 ただし、experiments 子ページでは書き方を揃える。
-
----
 
 ## 6. GSAP / ScrollTrigger 実装方針
 
@@ -886,8 +860,6 @@ pin / scrub / fullscreen reveal / horizontal translation のような PC 専用�
 - 定数は意味のある名前でファイル上部に置く
 - 描画・進捗計算・active state 更新・end 計算を読み分けられる構造にする
 
----
-
 ## 7. Lenis / Scroll 管理
 
 ### Lenis は Provider で一元管理する
@@ -935,8 +907,6 @@ pin / scrub / fullscreen reveal / horizontal translation のような PC 専用�
 Lenis の ON / OFF も、原則として Desktop Motion Gating と矛盾しない条件で運用する。  
 PC 専用の重いスクロール演出を使わない環境では、native scroll を優先する。
 
----
-
 ## 8. Parallax 実装ルール
 
 parallax では trigger と target を分けて考える。
@@ -951,8 +921,6 @@ parallax では trigger と target を分けて考える。
 - `1 より大きい` = 強め
 
 Desktop Motion Gating に該当しない環境では、parallax の transform をリセットし、静的表示に戻す。
-
----
 
 ## 9. Home ページ運用
 
@@ -1007,8 +975,6 @@ border や background を強く付けず、補足テキストとして控えめ�
 - tag hover のような局所調整値は local custom property でよい
 - tag / card / back button のように複数ファイルで繰り返す interaction 値のみ global token 化を検討する
 
----
-
 ## 10. Playground の考え方
 
 このプロジェクトは実験サイトであるため、何でも共通データ化することを目的にしない。
@@ -1037,7 +1003,7 @@ border や background を強く付けず、補足テキストとして控えめ�
 
 ## 更新方針
 
-このファイルは `Chiaki Frontend Rulebook v8` を基準版とする。  
+このファイルは `Chiaki Frontend Rulebook v10` を基準版とする。  
 今後ルールを更新する場合は、単なる追記ではなく、次の原則で更新する。
 
 ### 1. 競合する方針は上書きする
@@ -1074,6 +1040,25 @@ spacing / typography / color などの token を更新する場合は、名前�
 
 ## 更新履歴
 
+### v10
+
+- 更新日: 2026-04-07
+- v9 のルール内容は維持したまま、章構成と記述順を整理
+- token / responsive / motion / interaction の関連ルールを近接配置し、重複参照を減らした
+- v9 の内容整理に加えて、media query 運用の改善提案を別紙で扱いやすい形に分離した
+- breakpoint と capability 判定の役割分離を、Responsive / Desktop Motion Gating / GSAP / Lenis の間で読みやすく再整理
+- Rulebook Update Policy の基準 version を v10 に更新
+
+### v9
+
+- 更新日: 2026-04-07
+- `globals.css` の最新 token に合わせて color / semantic token 記述を更新
+- `--control-fg` を削除し、1:1 alias token を持たない方針と整合させた
+- alpha variation の整理方針を Color / Theme 設計に反映
+- foreground と text token の役割分離を明文化
+- 将来の可能性だけで token を増やさない方針を token 運用ルールへ追加
+- Rulebook Update Policy の基準 version を v9 に更新
+
 ### v8
 
 - 更新日: 2026-04-02
@@ -1088,6 +1073,7 @@ spacing / typography / color などの token を更新する場合は、名前�
 
 ### v7
 
+- 更新日: 2026-03-31
 - Responsive 設計に shared breakpoints ルールを追加
 - breakpoint を `48rem / 64rem / 75rem / 90rem` に統一
 - Desktop Motion Gating を追加
@@ -1097,6 +1083,7 @@ spacing / typography / color などの token を更新する場合は、名前�
 
 ### v6
 
+- 更新日: 2026-03-28
 - shared breakpoint の追記を追加
 - ブレイクポイントの乱立を避ける方針を明文化
 - app 全体で使用する breakpoint を `48rem / 64rem / 75rem / 90rem` に統一
@@ -1104,6 +1091,7 @@ spacing / typography / color などの token を更新する場合は、名前�
 
 ### v5
 
+- 更新日: 2026-03-25
 - Part 構成を `Core Principles / Shared Implementation Rules / Current Project Rules` に再編
 - 重複していた内容を整理し、判断基準と実装ルールを分離
 - `Next.js / React`、`レイアウト`、`CSS`、`token`、`アクセシビリティ` の順に再配置
@@ -1113,6 +1101,7 @@ spacing / typography / color などの token を更新する場合は、名前�
 
 ### v4
 
+- 更新日: 2026-03-22
 - primitive / semantic token の設計を追加
 - radius / motion / blur / control / panel / ui-line / ui-dot token を明記
 - カラー設計を OS テーマ対応前提に更新
@@ -1122,12 +1111,14 @@ spacing / typography / color などの token を更新する場合は、名前�
 
 ### v3
 
+- 更新日: 2026-03-20
 - OSテーマ対応を正式ルール化
 - globals.css の token ベーステーマ切り替え方針を追加
 - viewport 高さ（vh / svh / dvh）ルールを追加
 
 ### v2
 
+- 更新日: 2026-03-18
 - `Next.js / React の基本方針` を追加
 - `アクセシビリティ運用ルール` を追加
 - `hover / pointer 運用ルール` を追加
@@ -1137,6 +1128,7 @@ spacing / typography / color などの token を更新する場合は、名前�
 
 ### v1
 
+- 更新日: 2026-03-16
 - 初版作成
 - General Coding Rules と Current Project Context を統合
 - 最新の `globals.css` に合わせて token 設計を反映

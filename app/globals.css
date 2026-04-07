@@ -9,6 +9,13 @@
    - 64rem = 1024px
    - 75rem = 1200px
    - 90rem = 1440px
+
+   Color system
+   - Prefer solid tokens first: background / foreground / surface / border
+   - Alpha tokens must stay limited and role-based
+   - Reuse existing opacity steps before adding new ones
+   - Align light / dark by perceived contrast, not strict numeric symmetry
+   - Do not create one-off color tokens for page-only visual tweaks
 ========================================================= */
 
 :root {
@@ -25,25 +32,21 @@
   --border-2: #d4d4d4;
   --border-3: #b8b8b8;
 
-  --text-muted: rgba(0, 0, 0, 0.72);
+  /* ===== Text ===== */
   --text-dim: rgba(0, 0, 0, 0.56);
+  --text-muted: rgba(0, 0, 0, 0.72);
   --text-strong: rgba(0, 0, 0, 0.92);
 
   /* ===== Floating / control ===== */
-  --control-fg: #111111;
-  --control-border: rgba(17, 17, 17, 0.14);
-  --control-bg: rgba(255, 255, 255, 0.78);
-  --control-bg-hover: rgba(255, 255, 255, 0.9);
-
-  /* ===== Overlay / panel ===== */
-  --panel-border-soft: rgba(0, 0, 0, 0.08);
-  --panel-bg-soft: rgba(0, 0, 0, 0.03);
+  --control-border: rgba(0, 0, 0, 0.12);
+  --control-bg: rgba(255, 255, 255, 0.8);
+  --control-bg-hover: rgba(255, 255, 255, 0.92);
 
   /* ===== UI line / dot ===== */
   --ui-line-soft: rgba(0, 0, 0, 0.16);
   --ui-line-strong: rgba(0, 0, 0, 0.32);
-  --ui-dot-soft: rgba(0, 0, 0, 0.22);
-  --ui-dot-strong: rgba(0, 0, 0, 0.9);
+  --ui-dot-soft: rgba(0, 0, 0, 0.24);
+  --ui-dot-strong: rgba(0, 0, 0, 0.64);
 
   /* ===== Width ===== */
   --container: 1280px;
@@ -141,26 +144,21 @@
     --border-2: #333333;
     --border-3: #444444;
 
-    --text-muted: rgba(255, 255, 255, 0.75);
+    /* ===== Text ===== */
     --text-dim: rgba(255, 255, 255, 0.6);
+    --text-muted: rgba(255, 255, 255, 0.75);
     --text-strong: rgba(255, 255, 255, 0.92);
 
-    --dummy-background: #f4f1ea;
-    --dummy-foreground: rgba(17, 17, 17, 0.72);
-    --dummy-accent: rgba(17, 17, 17, 0.14);
-
-    --control-fg: var(--foreground);
-    --control-border: var(--border-1);
+    /* ===== Floating / control ===== */
+    --control-border: rgba(255, 255, 255, 0.12);
     --control-bg: rgba(21, 21, 21, 0.82);
     --control-bg-hover: rgba(27, 27, 27, 0.92);
 
-    --panel-border-soft: rgba(255, 255, 255, 0.09);
-    --panel-bg-soft: rgba(255, 255, 255, 0.03);
-
-    --ui-line-soft: rgba(255, 255, 255, 0.22);
-    --ui-line-strong: rgba(255, 255, 255, 0.85);
-    --ui-dot-soft: rgba(255, 255, 255, 0.26);
-    --ui-dot-strong: rgba(255, 255, 255, 0.95);
+    /* ===== UI line / dot ===== */
+    --ui-line-soft: rgba(255, 255, 255, 0.2);
+    --ui-line-strong: rgba(255, 255, 255, 0.36);
+    --ui-dot-soft: rgba(255, 255, 255, 0.24);
+    --ui-dot-strong: rgba(255, 255, 255, 0.68);
   }
 }
 

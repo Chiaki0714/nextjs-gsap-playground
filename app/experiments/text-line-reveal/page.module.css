@@ -75,15 +75,6 @@
   text-align: center;
 }
 
-.revealText {
-  display: grid;
-  gap: 0;
-}
-
-:global(.line) {
-  will-change: transform;
-}
-
 .displayTitle {
   margin: 0;
   font-size: var(--font-display-xl);
