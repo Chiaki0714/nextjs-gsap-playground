@@ -2,13 +2,25 @@
 @import 'tailwindcss';
 
 /* =========================================================
+   Breakpoint policy
+   - Shared breakpoints are fixed across the app.
+   - Use only these values unless a structural exception is unavoidable.
+   - Write media queries in rem.
+   - Prefer min-width as the default responsive direction.
+   - Treat the base style as mobile / narrow layout.
+   - Add structure progressively at larger breakpoints.
+   - If a max-width rule is needed, treat it as a local exception.
+
    Shared breakpoints
-   - Use only these breakpoint values across the app.
-   - Do not introduce one-off values unless structurally necessary.
    - 48rem = 768px
    - 64rem = 1024px
    - 75rem = 1200px
    - 90rem = 1440px
+
+   Responsive principle
+   - Size changes -> clamp()
+   - Structure changes -> @media
+   - Layout breakpoint and motion capability are separate concerns
 
    Color system
    - Prefer solid tokens first: background / foreground / surface / border
@@ -135,7 +147,7 @@
   :root {
     /* ===== Colors: Dark ===== */
     --background: #0f0f0f;
-    --foreground: #ededed;
+    --foreground: #ebebeb;
 
     --surface-1: #151515;
     --surface-2: #1b1b1b;

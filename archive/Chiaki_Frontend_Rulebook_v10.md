@@ -295,6 +295,19 @@ Client Component は必要な責務がある場合にのみ採用します。
 - `max-width` は例外的に「ある幅未満だけを限定的に上書きしたい」場合にのみ使う
 - ただし、GSAP などの動きの有効条件は breakpoint 単体ではなく capability 判定と分離する
 
+### Responsive direction
+
+- 設計の発想が desktop-first でもよい
+- ただし CSS の標準実装は mobile-first を基本とする
+- base style は narrow layout として書き、必要な構造だけを `min-width` で追加する
+- `max-width` は例外的な打ち消しや局所調整に限定する
+
+### breakpoint / motion の分離
+
+- breakpoint はレイアウト構造の切り替えに使う
+- hover / pointer / reduced-motion は操作環境の判定に使う
+- 「desktop だから動かす」ではなく、`MEDIA_QUERIES.desktopMotion` を満たすときだけ動かす
+
 ## 6.1 Desktop Motion Gating
 
 ### 目的

@@ -22,7 +22,7 @@
 }
 
 .card:focus-visible .inner {
-  transform: translateY(-6px);
+  transform: translateY(var(--motion-lift-sm));
   border-color: var(--border-3);
   background-color: var(--surface-2);
 }
