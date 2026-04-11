@@ -237,6 +237,38 @@ a {
   outline-offset: 2px;
 }
 
+.container {
+  width: min(var(--container), calc(100% - (var(--gutter) * 2)));
+  margin-inline: auto;
+}
+
+.containerWide {
+  width: min(var(--container-wide), calc(100% - (var(--gutter) * 2)));
+  margin-inline: auto;
+}
+
+.containerUltra {
+  width: min(var(--container-ultra), calc(100% - (var(--gutter) * 2)));
+  margin-inline: auto;
+}
+
+.prose {
+  width: min(100%, var(--prose));
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

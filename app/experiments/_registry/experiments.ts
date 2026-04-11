@@ -1,4 +1,3 @@
-// app/experiments/_registry/experiments.ts
 export type Tag =
   | 'ScrollTrigger'
   | 'Pin'
@@ -62,7 +61,7 @@ export const EXPERIMENTS: Experiment[] = [
   },
 ];
 
-export const ALL_TAGS: Tag[] = [
+export const ALL_TAGS = [
   'ScrollTrigger',
   'Pin',
   'Scrub',
@@ -71,4 +70,4 @@ export const ALL_TAGS: Tag[] = [
   'Cards',
   'Layout',
   'Intro',
-];
+] as const satisfies readonly Tag[];

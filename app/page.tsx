@@ -21,7 +21,7 @@ export default function Home() {
   const rootRef = useRef<HTMLElement | null>(null);
   const [activeTag, setActiveTag] = useState<ActiveTag>('All');
 
-  const visible =
+  const visibleExperiments =
     activeTag === 'All'
       ? EXPERIMENTS
       : EXPERIMENTS.filter(experiment => experiment.tags.includes(activeTag));
@@ -60,54 +60,49 @@ export default function Home() {
   );
 
   return (
-    <main className={styles.main} ref={rootRef}>
-      <section className={styles.wrapper}>
-        <div className={styles.container}>
-          <header className={styles.header}>
-            <h1 className={styles.title}>GSAP Playground</h1>
-            <p className={styles.subtitle}>
-              Scroll-driven motion experiments built with Next.js + GSAP
-            </p>
-            <p className={styles.srOnly} aria-live='polite'>
-              {activeTag === 'All'
-                ? `${visible.length} experiments available`
-                : `${activeTag} filter applied. ${visible.length} experiments available`}
-            </p>
-          </header>
+    <main ref={rootRef} className={styles.main}>
+      <section className={styles.section}>
+        <div className='containerWide'>
+          <div className={styles.inner}>
+            <header className={styles.header}>
+              <h1 className={styles.title}>GSAP Playground</h1>
+              <p className={styles.subtitle}>
+                Scroll-driven motion experiments built with Next.js + GSAP
+              </p>
+            </header>
 
-          <nav className={styles.tags} aria-label='Filter experiments by tag'>
-            <button
-              type='button'
-              className={clsx(
-                styles.tag,
-                activeTag === 'All' && styles.tagActive,
-              )}
-              aria-pressed={activeTag === 'All'}
-              onClick={() => setActiveTag('All')}
-            >
-              All
-            </button>
-
-            {ALL_TAGS.map(tag => (
+            <nav className={styles.tags} aria-label='Filter experiments by tag'>
               <button
-                key={tag}
                 type='button'
                 className={clsx(
                   styles.tag,
-                  activeTag === tag && styles.tagActive,
+                  activeTag === 'All' && styles.tagActive,
                 )}
-                aria-pressed={activeTag === tag}
-                onClick={() => setActiveTag(tag)}
+                aria-pressed={activeTag === 'All'}
+                onClick={() => setActiveTag('All')}
               >
-                {tag}
+                All
               </button>
-            ))}
-          </nav>
 
-          {visible.length > 0 ? (
-            <section aria-label='Experiment list'>
+              {ALL_TAGS.map(tag => (
+                <button
+                  key={tag}
+                  type='button'
+                  className={clsx(
+                    styles.tag,
+                    activeTag === tag && styles.tagActive,
+                  )}
+                  aria-pressed={activeTag === tag}
+                  onClick={() => setActiveTag(tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </nav>
+
+            {visibleExperiments.length > 0 ? (
               <ul className={styles.grid} role='list'>
-                {visible.map(experiment => (
+                {visibleExperiments.map(experiment => (
                   <li key={experiment.href} className={styles.gridItem}>
                     <NavigationCard
                       title={experiment.title}
@@ -118,18 +113,18 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-            </section>
-          ) : (
-            <section className={styles.empty} aria-live='polite'>
-              <p className={styles.emptyTitle}>
-                No experiments in this tag yet.
-              </p>
-              <p className={styles.emptyDescription}>
-                This category is empty for now. New experiments will be added
-                later.
-              </p>
-            </section>
-          )}
+            ) : (
+              <section className={styles.empty}>
+                <p className={styles.emptyTitle}>
+                  No experiments in this tag yet.
+                </p>
+                <p className={styles.emptyDescription}>
+                  This category is empty for now. New experiments will be added
+                  later.
+                </p>
+              </section>
+            )}
+          </div>
         </div>
       </section>
     </main>

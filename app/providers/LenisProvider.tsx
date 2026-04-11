@@ -7,36 +7,40 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import 'lenis/dist/lenis.css';
 
+import { MEDIA_QUERIES } from '../lib/media-queries';
+
 gsap.registerPlugin(ScrollTrigger);
 
-type LenisProviderProps = {
+type LenisProviderProps = Readonly<{
   children: React.ReactNode;
-};
+}>;
 
 type DeviceProfile = {
   shouldEnableLenis: boolean;
-  prefersReducedMotion: boolean;
 };
 
 const getDeviceProfile = (): DeviceProfile => {
   const prefersReducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)',
+    MEDIA_QUERIES.reducedMotion,
   ).matches;
-
-  const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-  const hasHover = window.matchMedia('(hover: hover)').matches;
-
-  // 方針:
-  // - reduced motion は常に Lenis OFF
-  // - coarse pointer かつ hover 不可の端末は Lenis OFF
-  //   -> 典型的なスマホ / タブレットを優先的に native scroll に寄せる
-  // - 小さいノートPCだけで Lenis が切れる状況は避ける
-  const shouldEnableLenis =
-    !prefersReducedMotion && !(isCoarsePointer && !hasHover);
+  const isCoarsePointer = window.matchMedia(
+    MEDIA_QUERIES.pointerCoarse,
+  ).matches;
+  const hasHover = window.matchMedia(MEDIA_QUERIES.hoverFine).matches;
 
   return {
-    shouldEnableLenis,
-    prefersReducedMotion,
+    shouldEnableLenis: !prefersReducedMotion && !(isCoarsePointer && !hasHover),
+  };
+};
+
+const addMediaQueryListener = (
+  mediaQueryList: MediaQueryList,
+  listener: () => void,
+) => {
+  mediaQueryList.addEventListener('change', listener);
+
+  return () => {
+    mediaQueryList.removeEventListener('change', listener);
   };
 };
 
@@ -48,13 +52,13 @@ export default function LenisProvider({ children }: LenisProviderProps) {
   const refreshRafRef = useRef<number | null>(null);
   const routeResetCleanupRef = useRef<(() => void) | null>(null);
 
-  const [shouldEnableLenis, setShouldEnableLenis] = useState<boolean>(true);
+  const [shouldEnableLenis, setShouldEnableLenis] = useState(true);
 
   const cancelRefreshRaf = () => {
-    if (refreshRafRef.current !== null) {
-      cancelAnimationFrame(refreshRafRef.current);
-      refreshRafRef.current = null;
-    }
+    if (refreshRafRef.current === null) return;
+
+    cancelAnimationFrame(refreshRafRef.current);
+    refreshRafRef.current = null;
   };
 
   const scheduleRefresh = () => {
@@ -66,7 +70,7 @@ export default function LenisProvider({ children }: LenisProviderProps) {
     });
   };
 
-  const clearLenis = () => {
+  const destroyLenis = () => {
     const lenis = lenisRef.current;
     if (!lenis) return;
 
@@ -109,31 +113,26 @@ export default function LenisProvider({ children }: LenisProviderProps) {
 
   useEffect(() => {
     ScrollTrigger.config({ ignoreMobileResize: true });
-
-    // 同一ページのリロード時はブラウザ標準の復元を尊重する
     window.history.scrollRestoration = 'auto';
 
     const updateProfile = () => {
-      const profile = getDeviceProfile();
-      setShouldEnableLenis(profile.shouldEnableLenis);
+      setShouldEnableLenis(getDeviceProfile().shouldEnableLenis);
     };
 
     updateProfile();
 
     const mediaQueries = [
-      window.matchMedia('(prefers-reduced-motion: reduce)'),
-      window.matchMedia('(pointer: coarse)'),
-      window.matchMedia('(hover: hover)'),
+      window.matchMedia(MEDIA_QUERIES.reducedMotion),
+      window.matchMedia(MEDIA_QUERIES.pointerCoarse),
+      window.matchMedia(MEDIA_QUERIES.hoverFine),
     ];
 
-    mediaQueries.forEach(mediaQuery => {
-      mediaQuery.addEventListener('change', updateProfile);
-    });
+    const cleanups = mediaQueries.map(mediaQuery =>
+      addMediaQueryListener(mediaQuery, updateProfile),
+    );
 
     return () => {
-      mediaQueries.forEach(mediaQuery => {
-        mediaQuery.removeEventListener('change', updateProfile);
-      });
+      cleanups.forEach(cleanup => cleanup());
     };
   }, []);
 
@@ -141,7 +140,7 @@ export default function LenisProvider({ children }: LenisProviderProps) {
     cancelRefreshRaf();
 
     if (!shouldEnableLenis) {
-      clearLenis();
+      destroyLenis();
       scheduleRefresh();
 
       return () => {
@@ -156,24 +155,24 @@ export default function LenisProvider({ children }: LenisProviderProps) {
 
     lenisRef.current = lenis;
 
-    const onLenisScroll = () => {
+    const handleLenisScroll = () => {
       ScrollTrigger.update();
     };
 
-    const onGsapTick = (time: number) => {
+    const handleGsapTick = (time: number) => {
       lenis.raf(time * 1000);
     };
 
-    lenis.on('scroll', onLenisScroll);
-    gsap.ticker.add(onGsapTick);
+    lenis.on('scroll', handleLenisScroll);
+    gsap.ticker.add(handleGsapTick);
     gsap.ticker.lagSmoothing(0);
 
     scheduleRefresh();
 
     return () => {
       cancelRefreshRaf();
-      lenis.off('scroll', onLenisScroll);
-      gsap.ticker.remove(onGsapTick);
+      lenis.off('scroll', handleLenisScroll);
+      gsap.ticker.remove(handleGsapTick);
       lenis.destroy();
 
       if (lenisRef.current === lenis) {
@@ -234,9 +233,9 @@ export default function LenisProvider({ children }: LenisProviderProps) {
     return () => {
       routeResetCleanupRef.current?.();
       cancelRefreshRaf();
-      clearLenis();
+      destroyLenis();
     };
   }, []);
 
-  return <>{children}</>;
+  return children;
 }
